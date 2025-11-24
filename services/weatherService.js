@@ -13,14 +13,14 @@ class WeatherService {
     try {
       const data = await fs.readFile('api_keys.csv', 'utf8');
       const lines = data.trim().split('\n');
-      
+
       lines.forEach(line => {
         const [service, key] = line.split(',');
         if (service && key) {
           this.apiKeys[service.trim()] = key.trim();
         }
       });
-      
+
       console.log('✅ API keys loaded successfully');
     } catch (error) {
       console.log('⚠️ No API keys file found or error loading keys');
@@ -63,7 +63,7 @@ class WeatherService {
       console.log(`⚠️ ${service} API key not found`);
       return null;
     }
-    
+
     // Mask API key for logging
     const masked = apiKey.length > 4 ? apiKey.slice(0, -4).replace(/./g, '*') + apiKey.slice(-4) : apiKey;
     console.log(`🔑 Using ${service} API key: ${masked}`);
@@ -84,13 +84,13 @@ class WeatherService {
   addToHistory(title, body) {
     const notificationKey = `${title}|${body}`;
     this.notificationHistory.add(notificationKey);
-    
+
     // Keep only last 100 notifications to prevent memory issues
     if (this.notificationHistory.size > 100) {
       const firstItem = this.notificationHistory.values().next().value;
       this.notificationHistory.delete(firstItem);
     }
-    
+
     console.log(`✅ Added to history. Total unique notifications: ${this.notificationHistory.size}`);
   }
 
@@ -112,19 +112,19 @@ class WeatherService {
 
       const weather = response.data;
       console.log(`✅ Weather data received for ${city}: ${weather.weather[0].main} - ${weather.weather[0].description}`);
-      
-    return {
+
+      return {
         city: weather.name,
         temperature: weather.main.temp,
         humidity: weather.main.humidity,
         description: weather.weather[0].description,
         main: weather.weather[0].main,
-        isRainy: weather.weather[0].main.toLowerCase().includes('rain') || 
-                 weather.weather[0].description.toLowerCase().includes('rain') ||
-                 weather.weather[0].main.toLowerCase().includes('drizzle'),
+        isRainy: weather.weather[0].main.toLowerCase().includes('rain') ||
+          weather.weather[0].description.toLowerCase().includes('rain') ||
+          weather.weather[0].main.toLowerCase().includes('drizzle'),
         icon: weather.weather[0].icon
-    };
-  } catch (error) {
+      };
+    } catch (error) {
       console.error('❌ Error fetching weather data:', error.response?.data || error.message);
       throw new Error(`Failed to fetch weather data: ${error.response?.data?.message || error.message}`);
     }
@@ -138,14 +138,14 @@ class WeatherService {
 
     try {
       console.log('🎬 Generating Bollywood song-style notification with Gemini...');
-      
+
       // Enhanced randomization for maximum variety
       const timestamp = new Date().toISOString();
       const randomSeed = Math.floor(Math.random() * 99999);
       const randomNumber = Math.floor(Math.random() * 1000);
       const currentHour = new Date().getHours();
       const currentMinute = new Date().getMinutes();
-      
+
       // More diverse emoji sets
       const emojiSets = [
         ['🌞', '🌡️', '🍦', '🥤', '🍹', '🍉', '🥭', '🍧', '☔', '🌧️', '⛅', '🌤️', '🌈'],
@@ -154,11 +154,11 @@ class WeatherService {
         ['🏠', '🏢', '🏪', '🏫', '🏰', '🏯', '🏛️', '⛪', '🕌', '🕍', '🕋', '⛩️', '🗽'],
         ['🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐', '🚚', '🚛', '🚜']
       ];
-      
+
       const selectedEmojiSet = emojiSets[Math.floor(Math.random() * emojiSets.length)];
       const randomEmoji1 = selectedEmojiSet[Math.floor(Math.random() * selectedEmojiSet.length)];
       const randomEmoji2 = selectedEmojiSet[Math.floor(Math.random() * selectedEmojiSet.length)];
-      
+
       // Bollywood song styles and genres
       const songStyles = [
         'रोमांटिक गाना', 'दोस्ती का गाना', 'फैमिली गाना', 'पार्टी गाना', 'देशभक्ति गाना',
@@ -166,7 +166,7 @@ class WeatherService {
         'मॉडर्न गाना', 'रेट्रो गाना', 'इंडी गाना', 'फिल्मी गाना', 'आइटम सॉन्ग'
       ];
       const randomSongStyle = songStyles[Math.floor(Math.random() * songStyles.length)];
-      
+
       // Famous Bollywood song patterns and phrases
       const songPatterns = [
         'ऐसा लगता है जैसे...', 'मेरे दिल में है...', 'आज का दिन है...', 'ये पल है...',
@@ -174,14 +174,14 @@ class WeatherService {
         'शाम है...', 'बारिश है...', 'धूप है...', 'हवा है...', 'गर्मी है...'
       ];
       const randomSongPattern = songPatterns[Math.floor(Math.random() * songPatterns.length)];
-      
+
       // Bollywood song emotions and moods
       const songEmotions = [
         'खुशी', 'उमंग', 'प्यार', 'दोस्ती', 'एकता', 'जोश', 'उत्साह', 'रोमांस',
         'नॉस्टेल्जिया', 'एडवेंचर', 'फ्रीडम', 'हॉप', 'ड्रीम्स', 'पैशन'
       ];
       const randomEmotion = songEmotions[Math.floor(Math.random() * songEmotions.length)];
-      
+
       // Famous Bollywood song references
       const famousSongs = [
         'दिलवाले दुल्हनिया ले जाएंगे - तुझे देखा तो ये जाना संजना',
@@ -196,14 +196,14 @@ class WeatherService {
         'गुलज़ार - इक याद है मुझे'
       ];
       const randomFamousSong = famousSongs[Math.floor(Math.random() * famousSongs.length)];
-      
+
       // Musical elements and instruments
       const musicalElements = [
         'तबला की थाप', 'सितार की तान', 'हारमोनियम की धुन', 'गिटार की तरंग',
         'पियानो की मधुरता', 'फ्लूट की सुरीली आवाज', 'ड्रम की धड़कन', 'वायलिन की मेलोडी'
       ];
       const randomMusicalElement = musicalElements[Math.floor(Math.random() * musicalElements.length)];
-      
+
       // Weather-based song themes
       const weatherSongThemes = weatherData.isRainy ? [
         'बारिश की रिमझिम', 'बादलों की छाया', 'सुगंधित मिट्टी', 'इंद्रधनुष की रंगत',
@@ -213,22 +213,21 @@ class WeatherService {
         'आइसक्रीम की मिठास', 'ठंडे शरबत की ताजगी', 'फलों की रंगत'
       ];
       const randomWeatherTheme = weatherSongThemes[Math.floor(Math.random() * weatherSongThemes.length)];
-      
+
       // Food items with song-like descriptions
-      const foodItems = weatherData.isRainy ? 
+      const foodItems = weatherData.isRainy ?
         ['गरम चाय की महक', 'पकौड़ों की क्रिस्पीनेस', 'समोसों की सुगंध', 'गरम सूप की ताजगी', 'खिचड़ी की गरमाहट', 'दाल चावल की सादगी'] :
         ['आइसक्रीम की मिठास', 'ठंडे शरबत की ताजगी', 'फलों की रंगत', 'सलाद की क्रंचीनेस', 'सैंडविच की फ्रेशनेस', 'बर्गर की जूसीनेस'];
       const randomFood = foodItems[Math.floor(Math.random() * foodItems.length)];
-      
+
       // Time-based song elements
       const timeSongElements = [
         'सुबह की ताज़गी में', 'दोपहर की गर्मी में', 'शाम की ठंडक में', 'रात की शांति में',
         'सप्ताहांत के मज़े में', 'काम के दिन की व्यस्तता में', 'छुट्टी के दिन की आज़ादी में'
       ];
       const randomTimeElement = timeSongElements[Math.floor(Math.random() * timeSongElements.length)];
-      
-      const prompt = `
-आप Pivokart के लिए एक बिल्कुल नया और अनोखा बॉलीवुड सॉन्ग स्टाइल नोटिफिकेशन बनाएं। 
+
+      const prompt = `आप Pivokart के लिए एक बिल्कुल नया और अनोखा बॉलीवुड सॉन्ग स्टाइल नोटिफिकेशन बनाएं। 
 
 मौसम: ${weatherData.city} में ${weatherData.description}, ${weatherData.temperature}°C${weatherData.isRainy ? ', बारिश' : ''}
 
@@ -262,7 +261,7 @@ JSON फॉर्मेट में जवाब दें:
 }
 `;
 
-      const response = await axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+      const response = await axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
         contents: [{
           parts: [{
             text: prompt
@@ -285,7 +284,7 @@ JSON फॉर्मेट में जवाब दें:
 
       const notification = JSON.parse(jsonMatch[0]);
       console.log('✅ Bollywood song-style notification generated with Gemini:', notification);
-      
+
       // Check for uniqueness and add to history
       if (this.isNotificationUnique(notification.title, notification.body)) {
         this.addToHistory(notification.title, notification.body);
@@ -309,14 +308,14 @@ JSON फॉर्मेट में जवाब दें:
 
     try {
       console.log('🎬 Generating Bollywood song-style notification with OpenAI...');
-      
+
       // Enhanced randomization for maximum variety
       const timestamp = new Date().toISOString();
       const randomSeed = Math.floor(Math.random() * 99999);
       const randomNumber = Math.floor(Math.random() * 1000);
       const currentHour = new Date().getHours();
       const currentMinute = new Date().getMinutes();
-      
+
       // More diverse emoji sets
       const emojiSets = [
         ['🌞', '🌡️', '🍦', '🥤', '🍹', '🍉', '🥭', '🍧', '☔', '🌧️', '⛅', '🌤️', '🌈'],
@@ -325,11 +324,11 @@ JSON फॉर्मेट में जवाब दें:
         ['🏠', '🏢', '🏪', '🏫', '🏰', '🏯', '🏛️', '⛪', '🕌', '🕍', '🕋', '⛩️', '🗽'],
         ['🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐', '🚚', '🚛', '🚜']
       ];
-      
+
       const selectedEmojiSet = emojiSets[Math.floor(Math.random() * emojiSets.length)];
       const randomEmoji1 = selectedEmojiSet[Math.floor(Math.random() * selectedEmojiSet.length)];
       const randomEmoji2 = selectedEmojiSet[Math.floor(Math.random() * selectedEmojiSet.length)];
-      
+
       // Bollywood song styles and genres
       const songStyles = [
         'रोमांटिक गाना', 'दोस्ती का गाना', 'फैमिली गाना', 'पार्टी गाना', 'देशभक्ति गाना',
@@ -337,7 +336,7 @@ JSON फॉर्मेट में जवाब दें:
         'मॉडर्न गाना', 'रेट्रो गाना', 'इंडी गाना', 'फिल्मी गाना', 'आइटम सॉन्ग'
       ];
       const randomSongStyle = songStyles[Math.floor(Math.random() * songStyles.length)];
-      
+
       // Famous Bollywood song patterns and phrases
       const songPatterns = [
         'ऐसा लगता है जैसे...', 'मेरे दिल में है...', 'आज का दिन है...', 'ये पल है...',
@@ -345,14 +344,14 @@ JSON फॉर्मेट में जवाब दें:
         'शाम है...', 'बारिश है...', 'धूप है...', 'हवा है...', 'गर्मी है...'
       ];
       const randomSongPattern = songPatterns[Math.floor(Math.random() * songPatterns.length)];
-      
+
       // Bollywood song emotions and moods
       const songEmotions = [
         'खुशी', 'उमंग', 'प्यार', 'दोस्ती', 'एकता', 'जोश', 'उत्साह', 'रोमांस',
         'नॉस्टेल्जिया', 'एडवेंचर', 'फ्रीडम', 'हॉप', 'ड्रीम्स', 'पैशन'
       ];
       const randomEmotion = songEmotions[Math.floor(Math.random() * songEmotions.length)];
-      
+
       // Famous Bollywood song references
       const famousSongs = [
         'दिलवाले दुल्हनिया ले जाएंगे - तुझे देखा तो ये जाना संजना',
@@ -367,14 +366,14 @@ JSON फॉर्मेट में जवाब दें:
         'गुलज़ार - इक याद है मुझे'
       ];
       const randomFamousSong = famousSongs[Math.floor(Math.random() * famousSongs.length)];
-      
+
       // Musical elements and instruments
       const musicalElements = [
         'तबला की थाप', 'सितार की तान', 'हारमोनियम की धुन', 'गिटार की तरंग',
         'पियानो की मधुरता', 'फ्लूट की सुरीली आवाज', 'ड्रम की धड़कन', 'वायलिन की मेलोडी'
       ];
       const randomMusicalElement = musicalElements[Math.floor(Math.random() * musicalElements.length)];
-      
+
       // Weather-based song themes
       const weatherSongThemes = weatherData.isRainy ? [
         'बारिश की रिमझिम', 'बादलों की छाया', 'सुगंधित मिट्टी', 'इंद्रधनुष की रंगत',
@@ -384,51 +383,51 @@ JSON फॉर्मेट में जवाब दें:
         'आइसक्रीम की मिठास', 'ठंडे शरबत की ताजगी', 'फलों की रंगत'
       ];
       const randomWeatherTheme = weatherSongThemes[Math.floor(Math.random() * weatherSongThemes.length)];
-      
+
       // Food items with song-like descriptions
-      const foodItems = weatherData.isRainy ? 
+      const foodItems = weatherData.isRainy ?
         ['गरम चाय की महक', 'पकौड़ों की क्रिस्पीनेस', 'समोसों की सुगंध', 'गरम सूप की ताजगी', 'खिचड़ी की गरमाहट', 'दाल चावल की सादगी'] :
         ['आइसक्रीम की मिठास', 'ठंडे शरबत की ताजगी', 'फलों की रंगत', 'सलाद की क्रंचीनेस', 'सैंडविच की फ्रेशनेस', 'बर्गर की जूसीनेस'];
       const randomFood = foodItems[Math.floor(Math.random() * foodItems.length)];
-      
+
       // Time-based song elements
       const timeSongElements = [
         'सुबह की ताज़गी में', 'दोपहर की गर्मी में', 'शाम की ठंडक में', 'रात की शांति में',
         'सप्ताहांत के मज़े में', 'काम के दिन की व्यस्तता में', 'छुट्टी के दिन की आज़ादी में'
       ];
       const randomTimeElement = timeSongElements[Math.floor(Math.random() * timeSongElements.length)];
-      
+
       const prompt = `
-आप Pivokart के लिए एक बिल्कुल नया और अनोखा बॉलीवुड स्टाइल नोटिफिकेशन बनाएं। 
+आप Pivokart के लिए एक बिल्कुल नया और अनोखा बॉलीवुड सॉन्ग स्टाइल नोटिफिकेशन बनाएं।
 
-मौसम: ${weatherData.city} में ${weatherData.description}, ${weatherData.temperature}°C${weatherData.isRainy ? ', बारिश' : ''}
+      मौसम: ${weatherData.city} में ${weatherData.description}, ${weatherData.temperature}°C${weatherData.isRainy ? ', बारिश' : ''}
 
-नियम:
-1. टाइटल: बहुत छोटा (10-15 शब्द)
-2. बॉडी: छोटा और मज़ेदार (20-25 शब्द)
-3. Pivokart का नाम शामिल करें
-4. बिल्कुल नया और अनोखा नोटिफिकेशन बनाएं (समय: ${timestamp}, सीड: ${randomSeed}, नंबर: ${randomNumber})
-5. शराब का उल्लेख न करें
-6. इस थीम पर आधारित बनाएं: ${randomTheme}
-7. इस मूड में बनाएं: ${randomMood}
-8. इस समय के अनुसार: ${randomTimeElement}
-9. इस फिल्म से प्रेरणा लें: ${randomMovie}
-10. इस मौसमी तत्व का उपयोग करें: ${randomWeatherElement}
-11. इस खाने का उल्लेख करें: ${randomFood}
-12. इन इमोजी का उपयोग करें: ${randomEmoji1} ${randomEmoji2}
-13. वर्तमान समय: ${currentHour}:${currentMinute}
-14. हर बार पूरी तरह अलग नोटिफिकेशन बनाएं
+      नियम:
+      1. टाइटल: बहुत छोटा(10 - 15 शब्द)
+      2. बॉडी: छोटा और मज़ेदार(20 - 25 शब्द)
+      3. Pivokart का नाम शामिल करें
+      4. बिल्कुल नया और अनोखा नोटिफिकेशन बनाएं(समय: ${timestamp}, सीड: ${randomSeed}, नंबर: ${randomNumber})
+      5. शराब का उल्लेख न करें
+      6. इस थीम पर आधारित बनाएं: ${randomWeatherTheme}
+      7. इस मूड में बनाएं: ${randomEmotion}
+      8. इस समय के अनुसार: ${randomTimeElement}
+      9. इस फिल्म से प्रेरणा लें: ${randomFamousSong}
+      10. इस मौसमी तत्व का उपयोग करें: ${randomWeatherTheme}
+      11. इस खाने का उल्लेख करें: ${randomFood}
+      12. इन इमोजी का उपयोग करें: ${randomEmoji1} ${randomEmoji2}
+      13. वर्तमान समय: ${currentHour}:${currentMinute}
+      14. हर बार पूरी तरह अलग नोटिफिकेशन बनाएं
 
-उदाहरण:
-- टाइटल: "बारिश में गरम चाय! ☔"
-- बॉडी: "मौसम बारिश का है! Pivokart से ऑर्डर करें 🌧️"
+      उदाहरण:
+      - टाइटल: "बारिश में गरम चाय! ☔"
+        - बॉडी: "मौसम बारिश का है! Pivokart से ऑर्डर करें 🌧️"
 
 JSON फॉर्मेट में जवाब दें:
-{
-  "title": "टाइटल यहाँ",
-  "body": "बॉडी यहाँ"
-}
-`;
+      {
+        "title": "टाइटल यहाँ",
+          "body": "बॉडी यहाँ"
+      }
+      `;
 
       const response = await axios.post('https://api.openai.com/v1/chat/completions', {
         model: "gpt-3.5-turbo",
@@ -449,7 +448,7 @@ JSON फॉर्मेट में जवाब दें:
       }, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
+          'Authorization': `Bearer ${apiKey} `
         }
       });
 
@@ -464,7 +463,7 @@ JSON फॉर्मेट में जवाब दें:
 
       const notification = JSON.parse(jsonMatch[0]);
       console.log('✅ Bollywood song-style notification generated with OpenAI:', notification);
-      
+
       // Check for uniqueness and add to history
       if (this.isNotificationUnique(notification.title, notification.body)) {
         this.addToHistory(notification.title, notification.body);
@@ -476,10 +475,10 @@ JSON फॉर्मेट में जवाब दें:
       }
     } catch (error) {
       console.error('❌ Error generating notification with OpenAI:', error.response?.data || error.message);
-      throw new Error(`Failed to generate notification with OpenAI: ${error.response?.data?.error?.message || error.message}`);
+      throw new Error(`Failed to generate notification with OpenAI: ${error.response?.data?.error?.message || error.message} `);
     }
   }
-  
+
   async generateBollywoodNotification(weatherData, provider = 'gemini') {
     if (provider === 'openai') {
       return this.generateBollywoodNotificationWithOpenAI(weatherData);
@@ -492,15 +491,15 @@ JSON फॉर्मेट में जवाब दें:
     try {
       // Step 1: Get weather data from OpenWeather
       const weatherData = await this.getWeatherData(city);
-      
+
       // Step 2: Generate Bollywood notification with specified provider
-      console.log(`🤖 Using AI provider: ${provider}`);
+      console.log(`🤖 Using AI provider: ${provider} `);
       const notification = await this.generateBollywoodNotification(weatherData, provider);
-      
+
       return {
         weatherInfo: weatherData,
         notification: notification,
-        message: `${notification.title}\n\n${notification.body}`,
+        message: `${notification.title} \n\n${notification.body} `,
         provider: provider
       };
     } catch (error) {

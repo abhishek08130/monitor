@@ -1,1390 +1,264 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Notifier Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <title>Pivokart Monitor | Admin Dashboard</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+
+  <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  <style>
-    :root {
-      --primary: #6366f1;
-      --primary-dark: #4f46e5;
-      --secondary: #ec4899;
-      --accent: #10b981;
-      --success: #22c55e;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-      --sidebar-bg: rgba(15, 23, 42, 0.95);
-      --card-bg: rgba(30, 41, 59, 0.8);
-      --card-hover: rgba(51, 65, 85, 0.9);
-      --glass-border: 1px solid rgba(148, 163, 184, 0.1);
-      --text-main: #f8fafc;
-      --text-secondary: #cbd5e1;
-      --text-muted: #94a3b8;
-      --input-bg: #1e293b;
-      --input-border: #475569;
-      --log-bg: rgba(30, 41, 59, 0.9);
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-      --border-radius: 16px;
-      --border-radius-lg: 20px;
-      --border-radius-xl: 24px;
-    }
-    
-    * {
-      box-sizing: border-box;
-    }
-    
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg-gradient);
-      color: var(--text-main);
-      min-height: 100vh;
-      overflow-x: hidden;
-      font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-    }
-    
-    .layout {
-      display: flex;
-      min-height: 100vh;
-    }
-    
-    .sidebar {
-      width: 280px;
-      background: linear-gradient(180deg, var(--sidebar-bg) 0%, rgba(30, 41, 59, 0.98) 100%);
-      color: var(--text-main);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 0;
-      position: relative;
-      min-height: 100vh;
-      backdrop-filter: blur(20px) saturate(1.2);
-      border-right: 1px solid rgba(148, 163, 184, 0.1);
-      box-shadow: var(--shadow-xl);
-      z-index: 2;
-      border-top-right-radius: var(--border-radius-xl);
-      border-bottom-right-radius: var(--border-radius-xl);
-      overflow: hidden;
-    }
-    
-    .logo-bg {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 0 32px 0;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%);
-      position: relative;
-      box-shadow: 0 4px 24px 0 rgba(99, 102, 241, 0.15);
-      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
-    }
-    
-    .logo-link {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      width: 100%;
-    }
-    
-    .logo-img {
-      height: 60px;
-      width: auto;
-      max-width: 180px;
-      object-fit: contain;
-      filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.3));
-      border-radius: var(--border-radius-lg);
-      background: rgba(30, 41, 59, 0.8);
-      padding: 12px;
-      box-shadow: var(--shadow-lg);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .logo-img:hover {
-      box-shadow: 0 8px 32px rgba(236, 72, 153, 0.4);
-      transform: scale(1.05) rotate(-1deg);
-    }
-    
-    .sidebar nav {
-      width: 100%;
-      margin-top: 24px;
-      padding: 0 20px;
-    }
-    
-    .sidebar nav a {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 16px 20px;
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 0.95rem;
-      font-weight: 500;
-      border-radius: var(--border-radius);
-      margin-bottom: 8px;
-      position: relative;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      overflow: hidden;
-      z-index: 1;
-      box-shadow: var(--shadow-sm);
-    }
-    
-    .sidebar nav a .nav-accent {
-      display: block;
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 4px;
-      border-radius: 2px;
-      background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
-      opacity: 0;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 2;
-    }
-    
-    .sidebar nav a.active .nav-accent,
-    .sidebar nav a:hover .nav-accent {
-      opacity: 1;
-      box-shadow: 0 0 16px 4px rgba(99, 102, 241, 0.4);
-    }
-    
-    .sidebar nav a.active, .sidebar nav a:hover {
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%);
-      color: var(--text-main);
-      transform: translateX(8px) scale(1.02);
-      box-shadow: var(--shadow-md);
-    }
-    
-    .sidebar nav a i {
-      font-size: 1.1em;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .sidebar nav a .nav-icon {
-      width: 20px;
-      height: 20px;
-      filter: brightness(0) invert(1);
-      opacity: 0.8;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .sidebar nav a.active i, .sidebar nav a:hover i,
-    .sidebar nav a.active .nav-icon, .sidebar nav a:hover .nav-icon {
-      color: var(--primary);
-      text-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
-      filter: brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(220deg);
-      opacity: 1;
-    }
-    
-    .sidebar .spacer {
-      flex: 1;
-    }
-    
-    .sidebar .footer {
-      font-size: 0.875rem;
-      color: var(--text-muted);
-      margin-bottom: 24px;
-      text-align: center;
-      letter-spacing: 0.025em;
-      opacity: 0.8;
-    }
-    
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-    
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding: 24px 40px 0 40px;
-      background: transparent;
-      min-height: 80px;
-      gap: 20px;
-      position: relative;
-    }
-    
-    .topbar .bell {
-      position: relative;
-      font-size: 1.25rem;
-      color: var(--primary);
-      margin-right: 12px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      padding: 12px;
-      border-radius: var(--border-radius);
-      background: rgba(99, 102, 241, 0.1);
-    }
-    
-    .topbar .bell:hover {
-      color: var(--secondary);
-      background: rgba(236, 72, 153, 0.1);
-      transform: scale(1.05);
-    }
-    
-    .topbar .bell-badge {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: var(--danger);
-      color: #fff;
-      font-size: 0.75rem;
-      border-radius: 50%;
-      padding: 4px 8px;
-      font-weight: 700;
-      box-shadow: var(--shadow-md);
-      animation: badgepop 2s infinite alternate;
-    }
-    
-    @keyframes badgepop {
-      0% { transform: scale(1); }
-      100% { transform: scale(1.1); }
-    }
-    
-    .topbar .lang {
-      background: var(--input-bg);
-      color: var(--text-secondary);
-      border-radius: var(--border-radius);
-      padding: 12px 20px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      border: 1px solid var(--input-border);
-      outline: none;
-      margin-right: 12px;
-      box-shadow: var(--shadow-sm);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .topbar .lang:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-    }
-    
-    .topbar .user {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-weight: 600;
-      color: var(--primary);
-      background: var(--input-bg);
-      border-radius: 50px;
-      padding: 8px 20px 8px 8px;
-      box-shadow: var(--shadow-md);
-      font-size: 0.9rem;
-      position: relative;
-      border: 1px solid var(--input-border);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .topbar .user:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-    
-    .topbar .avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--primary);
-      box-shadow: var(--shadow-md);
-      margin-right: 8px;
-    }
-    
-    .dashboard-content {
-      padding: 32px 40px 40px 40px;
-      flex: 1;
-      min-width: 0;
-      animation: fadein 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    @keyframes fadein {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: none; }
-    }
-    
-    .stat-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 24px;
-      margin-bottom: 40px;
-    }
-    
-    .stat-card {
-      background: var(--card-bg);
-      border-radius: var(--border-radius-lg);
-      box-shadow: var(--shadow-lg);
-      padding: 32px 24px 24px 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      position: relative;
-      overflow: hidden;
-      min-height: 140px;
-      border: var(--glass-border);
-      backdrop-filter: blur(20px);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: pointer;
-      animation: fadein 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-      opacity: 0;
-      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .stat-card:hover::before {
-      opacity: 1;
-    }
-    
-    .stat-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: var(--shadow-xl);
-      background: var(--card-hover);
-    }
-    
-    .stat-card .icon {
-      font-size: 2.5rem;
-      margin-bottom: 16px;
-      color: var(--primary);
-      opacity: 0.9;
-      filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.3));
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .stat-card:hover .icon {
-      color: var(--secondary);
-      transform: scale(1.1);
-    }
-    
-    .stat-card .value {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--text-main);
-      margin-bottom: 4px;
-      letter-spacing: -0.025em;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-    
-    .stat-card .label {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      font-weight: 500;
-      letter-spacing: 0.025em;
-    }
-    
-    .charts-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
-      gap: 24px;
-      margin-bottom: 40px;
-    }
-    
-    .chart-card {
-      background: var(--card-bg);
-      border-radius: var(--border-radius-lg);
-      box-shadow: var(--shadow-lg);
-      padding: 28px 20px 20px 20px;
-      min-height: 240px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border: var(--glass-border);
-      backdrop-filter: blur(20px);
-      animation: fadein 1s cubic-bezier(0.4, 0, 0.2, 1);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .chart-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-xl);
-    }
-    
-    .chart-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--primary);
-      margin-bottom: 16px;
-      letter-spacing: -0.025em;
-    }
-    
-    .logs {
-      background: var(--log-bg);
-      border-radius: var(--border-radius-lg);
-      padding: 24px 24px 16px 24px;
-      max-height: 240px;
-      overflow-y: auto;
-      font-size: 0.9rem;
-      box-shadow: var(--shadow-lg);
-      margin-bottom: 24px;
-      border: var(--glass-border);
-      backdrop-filter: blur(20px);
-      animation: fadein 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .logs::-webkit-scrollbar {
-      width: 6px;
-    }
-    
-    .logs::-webkit-scrollbar-track {
-      background: rgba(148, 163, 184, 0.1);
-      border-radius: 3px;
-    }
-    
-    .logs::-webkit-scrollbar-thumb {
-      background: rgba(99, 102, 241, 0.3);
-      border-radius: 3px;
-    }
-    
-    .logs::-webkit-scrollbar-thumb:hover {
-      background: rgba(99, 102, 241, 0.5);
-    }
-    
-    .logs h3 {
-      margin: 0 0 16px 0;
-      font-size: 1.2rem;
-      color: var(--primary);
-      font-weight: 700;
-      letter-spacing: -0.025em;
-    }
-    
-    .log-entry {
-      margin: 0 0 12px 0;
-      padding: 12px 16px;
-      border-left: 4px solid var(--primary);
-      background: rgba(99, 102, 241, 0.08);
-      border-radius: var(--border-radius);
-      color: var(--text-main);
-      font-size: 0.9rem;
-      box-shadow: var(--shadow-sm);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      animation: fadein 1.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .log-entry:hover {
-      background: rgba(99, 102, 241, 0.12);
-      transform: translateX(4px);
-    }
-    
-    .log-entry.error {
-      border-left-color: var(--danger);
-      background: rgba(239, 68, 68, 0.08);
-      color: var(--danger);
-    }
-    
-    .log-entry.error:hover {
-      background: rgba(239, 68, 68, 0.12);
-    }
-    
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      justify-content: center;
-      margin: 32px 0 0 0;
-      animation: fadein 1.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .button {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-      color: #fff;
-      border: none;
-      border-radius: var(--border-radius);
-      padding: 16px 28px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: var(--shadow-md);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      letter-spacing: 0.025em;
-      outline: none;
-      border: var(--glass-border);
-      backdrop-filter: blur(20px);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.5s;
-    }
-    
-    .button:hover::before {
-      left: 100%;
-    }
-    
-    .button i {
-      font-size: 1.1em;
-    }
-    
-    .button:hover {
-      background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
-      transform: translateY(-2px) scale(1.02);
-      box-shadow: var(--shadow-lg);
-    }
-    
-    .button.danger {
-      background: linear-gradient(135deg, var(--danger) 0%, var(--secondary) 100%);
-    }
-    
-    .button.danger:hover {
-      background: linear-gradient(135deg, var(--secondary) 0%, var(--danger) 100%);
-    }
-    
-    @media (max-width: 1200px) {
-      .charts-grid { grid-template-columns: 1fr; }
-      .dashboard-content { padding: 24px 32px 32px 32px; }
-      .stat-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-    }
-    
-    @media (max-width: 900px) {
-      .sidebar { width: 80px; min-width: 80px; border-radius: 0 var(--border-radius-lg) var(--border-radius-lg) 0; }
-      .logo-bg { padding: 24px 0 16px 0; }
-      .logo-img { height: 40px; max-width: 56px; padding: 8px; }
-      .sidebar nav a { font-size: 1rem; padding: 16px 12px; gap: 12px; justify-content: center; }
-      .sidebar nav a span, .sidebar nav a .nav-accent { display: none; }
-      .sidebar .footer { font-size: 0.75rem; }
-    }
-    
-    @media (max-width: 700px) {
-      .layout { flex-direction: column; }
-      .sidebar { width: 100vw; flex-direction: row; height: 70px; min-height: 0; padding: 0; border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); }
-      .logo-bg { padding: 12px 0 12px 0; }
-      .logo-img { height: 32px; max-width: 40px; padding: 4px; }
-      .sidebar nav { display: flex; flex-direction: row; gap: 0; margin-top: 0; }
-      .sidebar nav a { padding: 12px 12px; font-size: 0.9rem; margin-bottom: 0; }
-      .sidebar nav a span, .sidebar nav a .nav-accent { display: none; }
-      .sidebar .footer { font-size: 0.7rem; }
-      .main { padding-top: 70px; }
-      .dashboard-content { padding: 16px 24px 24px 24px; }
-      .stat-grid { grid-template-columns: 1fr; gap: 16px; }
-      .charts-grid { gap: 16px; }
-    }
-  </style>
-  <!-- Login Modal -->
-<div id="login-modal" style="display:flex;align-items:center;justify-content:center;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(15,23,42,0.96);z-index:2000;">
-  <form id="login-form" style="background:var(--card-bg);padding:48px 36px 36px 36px;border-radius:28px;box-shadow:0 8px 32px #0007;max-width:360px;width:90vw;display:flex;flex-direction:column;align-items:center;gap:24px;">
-    <div style="font-size:2.2rem;font-weight:800;color:var(--primary);margin-bottom:8px;letter-spacing:-0.03em;">Pivokart Login</div>
-    <div style="width:100%;display:flex;flex-direction:column;gap:12px;">
-      <input id="login-email" type="email" placeholder="Email" required style="width:100%;padding:14px 16px;border-radius:12px;border:1.5px solid var(--input-border);background:var(--input-bg);color:var(--text-main);font-size:1.1rem;outline:none;" />
-      <input id="login-password" type="password" placeholder="Password" required style="width:100%;padding:14px 16px;border-radius:12px;border:1.5px solid var(--input-border);background:var(--input-bg);color:var(--text-main);font-size:1.1rem;outline:none;" />
-    </div>
-    <button type="submit" class="button" style="width:100%;font-size:1.1rem;padding:14px 0;margin-top:8px;"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login</button>
-    <div id="login-error" style="color:var(--danger);font-size:1rem;display:none;margin-top:4px;"></div>
-  </form>
-</div>
 
-<script>
-let isAuthenticated = false;
-
-function showLogin() {
-  document.getElementById('login-modal').style.display = 'flex';
-  document.querySelector('.layout').style.filter = 'blur(8px)';
-}
-function hideLogin() {
-  document.getElementById('login-modal').style.display = 'none';
-  document.querySelector('.layout').style.filter = 'none';
-}
-function showDashboard() {
-  document.querySelector('.sidebar').style.display = '';
-  document.querySelector('.main').style.display = '';
-}
-function hideDashboard() {
-  document.querySelector('.sidebar').style.display = 'none';
-  document.querySelector('.main').style.display = 'none';
-}
-
-async function logout() {
-  isAuthenticated = false;
-  await fetch('/logout', { method: 'POST', credentials: 'same-origin' });
-  showLogin();
-  hideDashboard();
-}
-
-document.getElementById('login-form').onsubmit = async function(e) {
-  e.preventDefault();
-  const email = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value.trim();
-  const errorDiv = document.getElementById('login-error');
-  errorDiv.style.display = 'none';
-  try {
-    const res = await fetch('/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify({ email, password })
-    });
-    const result = await res.json();
-    if (result.success) {
-      isAuthenticated = true;
-      hideLogin();
-      showDashboard();
-    } else {
-      errorDiv.textContent = result.error || 'Invalid email or password';
-      errorDiv.style.display = 'block';
-    }
-  } catch (err) {
-    errorDiv.textContent = 'Login failed: ' + err.message;
-    errorDiv.style.display = 'block';
-  }
-};
-
-// Add logout button to topbar
-window.addEventListener('DOMContentLoaded', async function() {
-  const topbar = document.querySelector('.topbar');
-  if (topbar && !document.getElementById('logout-btn')) {
-    const logoutBtn = document.createElement('button');
-    logoutBtn.id = 'logout-btn';
-    logoutBtn.className = 'button danger';
-    logoutBtn.style.marginLeft = '18px';
-    logoutBtn.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Logout';
-    logoutBtn.onclick = logout;
-    topbar.appendChild(logoutBtn);
-  }
-  // Check authentication on load
-  try {
-    const res = await fetch('/auth-check', { credentials: 'same-origin' });
-    const result = await res.json();
-    if (result.authenticated) {
-      isAuthenticated = true;
-      hideLogin();
-      showDashboard();
-    } else {
-      isAuthenticated = false;
-      showLogin();
-      hideDashboard();
-    }
-  } catch (err) {
-    showLogin();
-    hideDashboard();
-  }
-});
-</script>
-<!-- END LOGIN MODAL -->
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
+
+  <!-- Login Modal -->
+  <div id="login-modal" class="modal-overlay active">
+    <div class="modal-card">
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <h2 style="font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem;">Welcome Back</h2>
+        <p style="color: var(--text-secondary);">Sign in to access the dashboard</p>
+      </div>
+      <form id="login-form">
+        <div class="form-group">
+          <input type="email" id="login-email" class="form-input" placeholder="Email Address" required>
+        </div>
+        <div class="form-group">
+          <input type="password" id="login-password" class="form-input" placeholder="Password" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In
+        </button>
+      </form>
+    </div>
+  </div>
+
   <div class="layout">
+    <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="logo-bg">
-        <a href="/" class="logo-link">
-          <img src="https://firebasestorage.googleapis.com/v0/b/pivokart-food.firebasestorage.app/o/images%2Flogo_web_1751315733176.png?alt=media&token=87b18785-dca5-4095-983a-8cc72fe7f64d" alt="Pivokart Logo" class="logo-img" />
+      <div class="logo-container">
+        <img
+          src="https://firebasestorage.googleapis.com/v0/b/pivokart-food.firebasestorage.app/o/images%2Flogo_web_1751315733176.png?alt=media&token=87b18785-dca5-4095-983a-8cc72fe7f64d"
+          alt="Pivokart" class="logo-img">
+      </div>
+
+      <nav class="nav-menu">
+        <a href="#" class="nav-item active" data-target="dashboard-content">
+          <i class="fa-solid fa-gauge-high"></i>
+          <span>Dashboard</span>
         </a>
-      </div>
-      <nav>
-        <a href="#" class="active"><span class="nav-accent"></span><i class="fa-solid fa-gauge"></i> Dashboard</a>
-        <a href="#"><span class="nav-accent"></span><i class="fa-solid fa-list"></i> Orders</a>
-        <a href="#"><span class="nav-accent"></span><i class="fa-solid fa-user-shield"></i> Admin</a>
-        <a href="#"><span class="nav-accent"></span><i class="fa-solid fa-users"></i> Customers</a>
-        <a href="#" id="nav-whatsapp-automation"><span class="nav-accent"></span><i class="fa-brands fa-whatsapp"></i> WhatsApp Automation</a>
-                 <a href="#" id="nav-firebase-services"><span class="nav-accent"></span><img src="/asset/firebase-logo.svg" alt="Firebase" class="nav-icon" style="width: 20px; height: 20px; filter: brightness(0) invert(1); opacity: 0.8;"> Firebase Services</a>
+        <a href="#" class="nav-item" data-target="whatsapp-automation-section">
+          <i class="fa-brands fa-whatsapp"></i>
+          <span>WhatsApp Bot</span>
+        </a>
+        <a href="#" class="nav-item" data-target="firebase-services-section">
+          <i class="fa-solid fa-fire"></i>
+          <span>Firebase Services</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fa-solid fa-users"></i>
+          <span>Customers</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fa-solid fa-list-check"></i>
+          <span>Orders</span>
+        </a>
       </nav>
-      <div class="spacer"></div>
-      <div class="footer">&copy; 2024 Pivokart</div>
+
+      <div class="sidebar-footer">
+        <p>&copy; 2024 Pivokart Admin</p>
+        <p style="font-size: 0.75rem; opacity: 0.5;">v2.5.0 Premium</p>
+      </div>
     </aside>
+
+    <!-- Main Content -->
     <main class="main">
-      <div class="topbar">
-        <div class="bell" title="Notifications">
-          <i class="fa-solid fa-bell"></i>
-          <span class="bell-badge" id="notif-badge">2</span>
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="notification-bell">
+          <i class="fa-regular fa-bell"></i>
+          <span class="badge">3</span>
         </div>
-        <select class="lang">
-          <option>English</option>
-          <option>Hindi</option>
-        </select>
-        <div class="user">
-          <img src="https://lh3.googleusercontent.com/a-/ALV-UjVZ34b0gLkhZjEzM0sfphggtOlTtn0dvFjmk0Vb3w259wQeOpBk=s300" class="avatar" alt="Admin"/>
-          Super Admin
+
+        <div class="user-profile">
+          <img src="https://lh3.googleusercontent.com/a-/ALV-UjVZ34b0gLkhZjEzM0sfphggtOlTtn0dvFjmk0Vb3w259wQeOpBk=s300"
+            alt="Admin" class="avatar">
+          <span class="user-name">Super Admin</span>
+          <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem; opacity: 0.7;"></i>
         </div>
-      </div>
-      <div class="dashboard-content" id="dashboard-content">
-        <div class="stat-grid">
+
+        <button onclick="logout()" class="btn btn-glass"
+          style="padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center;">
+          <i class="fa-solid fa-power-off" style="color: var(--danger);"></i>
+        </button>
+      </header>
+
+      <!-- Dashboard Section -->
+      <div id="dashboard-content" class="content">
+        <div class="section-header">
+          <h1 class="section-title">Overview</h1>
+          <p class="section-subtitle">Real-time monitoring and statistics</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
           <div class="stat-card">
-            <div class="icon"><i class="fa-solid fa-bell"></i></div>
-            <div class="value" id="stat-total-notifications">0</div>
-            <div class="label">Total Notifications Sent</div>
+            <div class="stat-icon">
+              <i class="fa-solid fa-bell"></i>
+            </div>
+            <div class="stat-value" id="stat-total-notifications">0</div>
+            <div class="stat-label">Total Notifications</div>
           </div>
+
           <div class="stat-card">
-            <div class="icon"><i class="fa-solid fa-list"></i></div>
-            <div class="value" id="stat-total-orders">0</div>
-            <div class="label">Total Orders</div>
+            <div class="stat-icon" style="color: var(--success); background: rgba(16, 185, 129, 0.1);">
+              <i class="fa-solid fa-cart-shopping"></i>
+            </div>
+            <div class="stat-value" id="stat-total-orders">0</div>
+            <div class="stat-label">Total Orders</div>
           </div>
+
           <div class="stat-card">
-            <div class="icon"><i class="fa-solid fa-user-shield"></i></div>
-            <div class="value">1</div>
-            <div class="label">Admin</div>
+            <div class="stat-icon" style="color: var(--warning); background: rgba(245, 158, 11, 0.1);">
+              <i class="fa-solid fa-users"></i>
+            </div>
+            <div class="stat-value" id="stat-total-customers">0</div>
+            <div class="stat-label">Active Customers</div>
           </div>
+
           <div class="stat-card">
-            <div class="icon"><i class="fa-solid fa-users"></i></div>
-            <div class="value" id="stat-total-customers">0</div>
-            <div class="label">Customers Notified</div>
-          </div>
-          <div class="stat-card">
-            <div class="icon"><i class="fa-brands fa-whatsapp"></i></div>
-            <div class="value" id="stat-whatsapp-automation">Active</div>
-            <div class="label">WhatsApp Automation</div>
-          </div>
-          <div class="stat-card">
-            <div class="icon"><i class="fa-solid fa-clock"></i></div>
-            <div class="value" id="stat-scheduler-status">Loading...</div>
-            <div class="label">Weather Scheduler</div>
+            <div class="stat-icon" style="color: var(--secondary); background: rgba(236, 72, 153, 0.1);">
+              <i class="fa-brands fa-whatsapp"></i>
+            </div>
+            <div class="stat-value">Active</div>
+            <div class="stat-label">Bot Status</div>
           </div>
         </div>
+
+        <!-- Charts Grid -->
         <div class="charts-grid">
+          <div class="chart-card" style="grid-column: span 2;">
+            <div class="chart-header">
+              <h3 class="chart-title">Activity Overview</h3>
+              <select
+                style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 4px 8px; border-radius: 4px;">
+                <option>Last 7 Days</option>
+              </select>
+            </div>
+            <div style="flex: 1; position: relative;">
+              <canvas id="barChart"></canvas>
+            </div>
+          </div>
+
           <div class="chart-card">
-            <div class="chart-title">Notifications Over Time</div>
-            <canvas id="barChart" width="320" height="120"></canvas>
-          </div>
-          <div class="chart-card">
-            <div class="chart-title">Order Status</div>
-            <canvas id="pieChart" width="120" height="120"></canvas>
-          </div>
-          <div class="chart-card">
-            <div class="chart-title">Admin vs Customer</div>
-            <canvas id="donutChart" width="120" height="120"></canvas>
+            <div class="chart-header">
+              <h3 class="chart-title">User Distribution</h3>
+            </div>
+            <div style="flex: 1; position: relative;">
+              <canvas id="donutChart"></canvas>
+            </div>
           </div>
         </div>
-                 <div class="logs">
-           <h3>Activity Logs</h3>
-           <div id="logs"></div>
-         </div>
-        <div class="actions" style="margin-top:18px;">
-          <button class="button" onclick="getRecentOrders()"><i class="fa-solid fa-list"></i>View Recent Orders</button>
-          <button class="button danger" onclick="stopMonitoring()"><i class="fa-solid fa-stop"></i>Stop Monitoring</button>
+
+        <!-- Logs -->
+        <div class="logs-container">
+          <div class="chart-header">
+            <h3 class="chart-title">System Logs</h3>
+            <span style="font-size: 0.8rem; color: var(--success);">● Live</span>
+          </div>
+          <div class="logs-scroll" id="logs">
+            <!-- Logs injected here -->
+          </div>
+        </div>
+
+        <div class="actions-bar">
+          <button class="btn btn-primary" onclick="getRecentOrders()">
+            <i class="fa-solid fa-rotate"></i> Refresh Data
+          </button>
+          <button class="btn btn-danger">
+            <i class="fa-solid fa-stop"></i> Stop Services
+          </button>
         </div>
       </div>
-      <div class="dashboard-content" id="whatsapp-automation-section" style="display:none;">
-        <h2 style="margin-top:0;"><i class="fa-brands fa-whatsapp"></i> WhatsApp Automation</h2>
-        <p>Manage and monitor WhatsApp automation features, bot status, and notification delivery.</p>
-        
-        <!-- Status Overview -->
-        <div class="stat-grid" style="margin-top:32px;">
+
+      <!-- WhatsApp Section -->
+      <div id="whatsapp-automation-section" class="content" style="display: none;">
+        <div class="section-header">
+          <h1 class="section-title">WhatsApp Automation</h1>
+          <p class="section-subtitle">Manage bot responses and campaigns</p>
+        </div>
+
+        <div class="stats-grid">
           <div class="stat-card">
-            <div class="icon"><i class="fa-brands fa-whatsapp"></i></div>
-            <div class="value" id="whatsapp-bot-status">Active</div>
-            <div class="label">WhatsApp Bot Status</div>
+            <div class="stat-icon"><i class="fa-brands fa-whatsapp"></i></div>
+            <div class="stat-value">Connected</div>
+            <div class="stat-label">Connection Status</div>
           </div>
           <div class="stat-card">
-            <div class="icon"><i class="fa-solid fa-paper-plane"></i></div>
-            <div class="value" id="whatsapp-notifications-sent">0</div>
-            <div class="label">Notifications Sent</div>
-          </div>
-          <div class="stat-card">
-            <div class="icon"><i class="fa-solid fa-users"></i></div>
-            <div class="value" id="whatsapp-customers-reached">0</div>
-            <div class="label">Customers Reached</div>
-          </div>
-          <div class="stat-card">
-            <div class="icon"><i class="fa-solid fa-clock"></i></div>
-            <div class="value" id="whatsapp-last-activity">Just Now</div>
-            <div class="label">Last Activity</div>
+            <div class="stat-icon"><i class="fa-solid fa-paper-plane"></i></div>
+            <div class="stat-value">1,240</div>
+            <div class="stat-label">Messages Sent</div>
           </div>
         </div>
-        
-        <!-- WhatsApp Bot Card -->
-        <div class="stat-card" style="margin-top:32px; max-width:600px;">
-          <div class="icon"><i class="fa-solid fa-robot"></i></div>
-          <div class="value">WhatsApp Bot</div>
-          <div class="label">Status: <span id="whatsapp-bot-status-detail">Connected</span></div>
-          <div style="margin-top:14px;">
-            <div style="background:var(--card-bg);padding:16px;border-radius:12px;margin-bottom:16px;border:var(--glass-border);">
-              <h4 style="margin-top:0;margin-bottom:12px;color:var(--primary);">Bot Configuration</h4>
-              <div style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:12px;">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;">
-                  <div>🔗 Connection: <span id="whatsapp-connection-status">Connected</span></div>
-                  <div>📱 Phone Number: <span id="whatsapp-phone-number">+91 97589 11480</span></div>
-                  <div>🆔 Business ID: <span id="whatsapp-business-id">Active</span></div>
-                  <div>⏰ Last Ping: <span id="whatsapp-last-ping">2 min ago</span></div>
-                </div>
-                <div style="padding:8px;background:var(--glass-border);border-radius:8px;font-size:0.85rem;">
-                  <strong>Template:</strong> Order Confirmation | <strong>Language:</strong> Hindi/English | <strong>Timezone:</strong> Asia/Kolkata
-                </div>
-              </div>
-            </div>
-            <div class="actions">
-              <button class="button" onclick="startWhatsAppService()"><i class="fa-solid fa-play"></i>Start Bot</button>
-              <button class="button danger" onclick="stopWhatsAppService()"><i class="fa-solid fa-stop"></i>Stop Bot</button>
-              <button class="button" onclick="testWhatsAppConnection()"><i class="fa-solid fa-wifi"></i>Test Connection</button>
-              <button class="button" onclick="restartWhatsAppBot()"><i class="fa-solid fa-refresh"></i>Restart Bot</button>
-            </div>
-          </div>
-        </div>
-        
-        <!-- WhatsApp Notification Card -->
-        <div class="stat-card" style="margin-top:24px; max-width:600px;">
-          <div class="icon"><i class="fa-solid fa-bell"></i></div>
-          <div class="value">Notification Management</div>
-          <div class="label">Status: <span id="whatsapp-notification-status">Ready</span></div>
-          <div style="margin-top:14px;">
-            <div style="background:var(--card-bg);padding:16px;border-radius:12px;margin-bottom:16px;border:var(--glass-border);">
-              <h4 style="margin-top:0;margin-bottom:12px;color:var(--primary);">Notification Statistics</h4>
-              <div style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:12px;">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;">
-                  <div>📊 Today: <span id="whatsapp-today-count">0</span> sent</div>
-                  <div>📈 This Week: <span id="whatsapp-week-count">0</span> sent</div>
-                  <div>✅ Success Rate: <span id="whatsapp-success-rate">100%</span></div>
-                  <div>⏱️ Avg Response: <span id="whatsapp-avg-response">2.3s</span></div>
-                </div>
-                <div style="padding:8px;background:var(--glass-border);border-radius:8px;font-size:0.85rem;">
-                  <strong>Template:</strong> Order Confirmation | <strong>Variables:</strong> Customer Name, Order ID, Items, Time
-                </div>
-              </div>
-            </div>
-            <div class="actions">
-              <button class="button" onclick="testNotification()"><i class="fa-solid fa-paper-plane"></i>Test Notification</button>
-              <button class="button" onclick="sendBulkNotification()"><i class="fa-solid fa-broadcast-tower"></i>Send Bulk</button>
-              <button class="button" onclick="viewNotificationHistory()"><i class="fa-solid fa-history"></i>View History</button>
-              <button class="button" onclick="exportNotificationData()"><i class="fa-solid fa-download"></i>Export Data</button>
-            </div>
-          </div>
-        </div>
-        
-        <!-- WhatsApp Logs -->
-        <div class="logs" style="margin-top:32px;">
-          <h3>WhatsApp Service Logs</h3>
-          <div id="whatsapp-logs"></div>
+
+        <div class="logs-container">
+          <h3 class="chart-title" style="margin-bottom: 1rem;">WhatsApp Logs</h3>
+          <div class="logs-scroll" id="whatsapp-logs"></div>
         </div>
       </div>
-      <div class="dashboard-content" id="firebase-services-section" style="display:none;">
-        <h2 style="margin-top:0;"><i class="fa-brands fa-fire"></i> Firebase Services</h2>
-        <!-- OpenWeather API Key form removed -->
-        <div class="stat-card" style="margin-top:32px; max-width:700px;">
-          <div class="icon"><i class="fa-solid fa-cloud-sun"></i></div>
-          <div class="value">Weather Notification Service</div>
-          <div class="label">Status: <span id="weather-service-status">Inactive</span></div>
-          <div style="margin-top:14px;">
-            <!-- Weather Notification Configuration -->
-            <div style="background:var(--card-bg);padding:16px;border-radius:12px;margin-bottom:16px;border:var(--glass-border);">
-              <h4 style="margin-top:0;margin-bottom:12px;color:var(--primary);">Weather Notification Configuration</h4>
-              <div style="display:flex;gap:16px;margin-bottom:10px;">
-                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-                  <input type="radio" name="ai-provider" value="gemini" checked>
-                  <span style="color:var(--text-main);font-weight:500;">Gemini AI</span>
-                </label>
-                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-                  <input type="radio" name="ai-provider" value="openai">
-                  <span style="color:var(--text-main);font-weight:500;">OpenAI (ChatGPT)</span>
-                </label>
-              </div>
-            </div>
-            
-            <!-- Automatic Weather Scheduler -->
-            <div style="background:var(--card-bg);padding:16px;border-radius:12px;margin-bottom:16px;border:var(--glass-border);">
-              <h4 style="margin-top:0;margin-bottom:12px;color:var(--primary);">🕐 Automatic Weather Scheduler</h4>
-              <div style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:12px;">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;">
-                  <div>🕐 Current Time: <span id="current-time">Loading...</span></div>
-                  <div>📱 Notifications Sent: <span id="notification-count">0</span></div>
-                  <div>⏰ Next Notification: <span id="next-notification">Loading...</span></div>
-                  <div>🎵 Style: Bollywood Song-Style</div>
-                </div>
-                <div style="padding:8px;background:var(--glass-border);border-radius:8px;font-size:0.85rem;">
-                  <strong>Schedule:</strong> 9:00 AM - 9:00 PM (Every Hour) | <strong>City:</strong> Tanakpur | <strong>Timezone:</strong> Asia/Kolkata
-                </div>
-              </div>
-            </div>
-            
-            <!-- Combined Controls -->
-            <div class="actions">
-              <button class="button" onclick="sendWeatherNotification()"><i class="fa-solid fa-bolt"></i>Send Manual Notification</button>
-              <button class="button" onclick="editWeatherService()"><i class="fa-solid fa-pen"></i>Edit Configuration</button>
-              <button class="button" onclick="startScheduler()"><i class="fa-solid fa-clock"></i>Start Scheduler</button>
-              <button class="button danger" onclick="stopScheduler()"><i class="fa-solid fa-stop"></i>Stop Scheduler</button>
-              <button class="button" onclick="triggerManualNotification()"><i class="fa-solid fa-bolt"></i>Manual Trigger</button>
-              <button class="button" onclick="resetNotificationCount()"><i class="fa-solid fa-refresh"></i>Reset Count</button>
-            </div>
+
+      <!-- Firebase Section -->
+      <div id="firebase-services-section" class="content" style="display: none;">
+        <div class="section-header">
+          <h1 class="section-title">Firebase & Weather</h1>
+          <p class="section-subtitle">Configure cloud services and integrations</p>
+        </div>
+
+        <div class="chart-card" style="margin-bottom: 2rem;">
+          <div class="chart-header">
+            <h3 class="chart-title">Weather Notification Config</h3>
+          </div>
+
+          <div style="display: flex; gap: 2rem; margin-bottom: 2rem;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="radio" name="ai-provider" value="gemini" checked>
+              <span>Gemini AI (Recommended)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="radio" name="ai-provider" value="openai">
+              <span>OpenAI (GPT-4)</span>
+            </label>
+          </div>
+
+          <div class="actions-bar" style="justify-content: flex-start;">
+            <button class="btn btn-primary" onclick="sendWeatherNotification()">
+              <i class="fa-solid fa-cloud-bolt"></i> Send Test Notification
+            </button>
           </div>
         </div>
-        
-        <!-- Weather Service Logs -->
-        <div class="logs" style="margin-top:32px;">
-          <h3>Weather Service Logs</h3>
-          <div id="weather-logs"></div>
+
+        <div class="logs-container">
+          <h3 class="chart-title" style="margin-bottom: 1rem;">Weather Service Logs</h3>
+          <div class="logs-scroll" id="weather-logs"></div>
         </div>
       </div>
-      <!-- Modal for editing API keys -->
-      <div id="edit-api-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;">
-        <div style="background:var(--card-bg);padding:32px 28px 24px 28px;border-radius:18px;max-width:400px;width:90vw;box-shadow:0 8px 32px #0005;position:relative;">
-          <h3 style="margin-top:0;">Edit API Keys</h3>
-          <form id="edit-api-form">
-            <label for="edit-openweather-api-key" style="font-weight:600;">OpenWeather API Key:</label>
-            <input type="text" id="edit-openweather-api-key" name="edit-openweather-api-key" style="width:100%;padding:8px;margin:8px 0 12px 0;border-radius:8px;border:1.5px solid var(--input-border);background:var(--input-bg);color:var(--text-main);font-size:1.1rem;" required />
-            <label for="edit-gemini-api-key" style="font-weight:600;">GEMINI_API_KEY:</label>
-            <input type="text" id="edit-gemini-api-key" name="edit-gemini-api-key" style="width:100%;padding:8px;margin:8px 0 12px 0;border-radius:8px;border:1.5px solid var(--input-border);background:var(--input-bg);color:var(--text-main);font-size:1.1rem;" required />
-            <label for="edit-openai-api-key" style="font-weight:600;">OpenAI API Key:</label>
-            <input type="text" id="edit-openai-api-key" name="edit-openai-api-key" style="width:100%;padding:8px;margin:8px 0 12px 0;border-radius:8px;border:1.5px solid var(--input-border);background:var(--input-bg);color:var(--text-main);font-size:1.1rem;" required />
-            <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:18px;">
-              <button class="button" type="submit"><i class="fa-solid fa-save"></i> Save</button>
-              <button class="button danger" type="button" id="close-edit-api-modal"><i class="fa-solid fa-xmark"></i> Cancel</button>
-            </div>
-          </form>
-        </div>
-      </div>
+
     </main>
   </div>
+
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    // Chart.js demo data
-    const barCtx = document.getElementById('barChart').getContext('2d');
-    const barChart = new Chart(barCtx, {
-      type: 'bar',
-      data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [{
-          label: 'Notifications',
-          data: [2, 4, 3, 5, 6, 2, 4],
-          backgroundColor: [
-            'rgba(106,130,251,0.85)',
-            'rgba(252,92,125,0.85)',
-            'rgba(67,233,123,0.85)',
-            'rgba(255,212,82,0.85)',
-            'rgba(252,92,125,0.65)',
-            'rgba(106,130,251,0.65)',
-            'rgba(67,233,123,0.65)'
-          ],
-          borderRadius: 12
-        }]
-      },
-      options: {
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, ticks: { color: '#bfc0c0' }, grid: { color: '#353b5a' } }, x: { ticks: { color: '#bfc0c0' }, grid: { color: '#353b5a' } } }
-      }
-    });
-    const pieCtx = document.getElementById('pieChart').getContext('2d');
-    const pieChart = new Chart(pieCtx, {
-      type: 'pie',
-      data: {
-        labels: ['Completed', 'Pending', 'Failed'],
-        datasets: [{
-          data: [12, 3, 1],
-          backgroundColor: ['#43e97b', '#ffd452', '#ff4e50'],
-          borderWidth: 2,
-          borderColor: '#232946',
-        }]
-      },
-      options: { plugins: { legend: { position: 'bottom', labels: { color: '#bfc0c0' } } } }
-    });
-    const donutCtx = document.getElementById('donutChart').getContext('2d');
-    const donutChart = new Chart(donutCtx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Admin', 'Customer'],
-        datasets: [{
-          data: [1, 7],
-          backgroundColor: ['#6a82fb', '#fc5c7d'],
-          borderWidth: 2,
-          borderColor: '#232946',
-        }]
-      },
-      options: { plugins: { legend: { position: 'bottom', labels: { color: '#bfc0c0' } } } }
-    });
-
-    // Logs and actions
-    function addLog(message, isError = false) {
-      const logs = document.getElementById('logs');
-      const logEntry = document.createElement('div');
-      logEntry.className = 'log-entry' + (isError ? ' error' : '');
-      logEntry.textContent = new Date().toLocaleTimeString() + ' - ' + message;
-      logs.appendChild(logEntry);
-      logs.scrollTop = logs.scrollHeight;
-    }
-    async function testNotification() {
-      try {
-        addWhatsAppLog('📱 Sending test WhatsApp notification...');
-        const response = await fetch('/test-notification', { method: 'POST' });
-        const result = await response.json();
-        if (result.success) {
-          addWhatsAppLog('✅ Test WhatsApp notification sent successfully');
-          updateWhatsAppStats(1);
-          document.getElementById('whatsapp-last-activity').textContent = 'Just Now';
-        } else {
-          addWhatsAppLog('❌ Failed to send test notification: ' + result.error, true);
-        }
-      } catch (error) {
-        addWhatsAppLog('❌ Error sending test notification: ' + error.message, true);
-      }
-    }
-    async function getRecentOrders() {
-      try {
-        const response = await fetch('/recent-orders');
-        const orders = await response.json();
-        addLog(`📋 Found ${orders.length} recent orders`);
-        document.getElementById('stat-total-orders').textContent = orders.length;
-        let customers = new Set();
-        orders.forEach(order => {
-          addLog(`   - Order ${order.id}: ${order.customerName || 'Unknown'} - ₹${order.totalAmount || 'N/A'}`);
-          if (order.customerPhone) customers.add(order.customerPhone);
-        });
-        document.getElementById('stat-total-customers').textContent = customers.size;
-      } catch (error) {
-        addLog('❌ Error fetching recent orders: ' + error.message, true);
-      }
-    }
-    function stopMonitoring() {
-      addLog('⏹️ Monitoring stopped (restart required to resume)');
-      document.querySelector('.stat-card .icon').style.color = 'var(--danger)';
-      document.querySelector('.stat-card .icon').style.filter = 'drop-shadow(0 2px 8px #ff4e5022)';
-      document.querySelector('.stat-card .value').style.color = 'var(--danger)';
-    }
-
-    // WhatsApp Automation navigation
-    document.getElementById('nav-whatsapp-automation').addEventListener('click', function(e) {
-      e.preventDefault();
-      document.getElementById('dashboard-content').style.display = 'none';
-      document.getElementById('whatsapp-automation-section').style.display = 'block';
-      // Remove active from all nav links
-      document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
-      this.classList.add('active');
-    });
-    // Optionally, clicking Dashboard returns to main dashboard
-    document.querySelector('.sidebar nav a').addEventListener('click', function(e) {
-      if (this !== document.getElementById('nav-whatsapp-automation')) {
-        document.getElementById('dashboard-content').style.display = 'block';
-        document.getElementById('whatsapp-automation-section').style.display = 'none';
-        document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
-        this.classList.add('active');
-      }
-    });
-
-    // Navigation logic for new Firebase Services section
-    document.getElementById('nav-firebase-services').addEventListener('click', function(e) {
-      e.preventDefault();
-      document.getElementById('dashboard-content').style.display = 'none';
-      document.getElementById('whatsapp-automation-section').style.display = 'none';
-      document.getElementById('firebase-services-section').style.display = 'block';
-      document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
-      this.classList.add('active');
-    });
-    // Update WhatsApp Automation nav logic to hide Firebase Services section
-    document.getElementById('nav-whatsapp-automation').addEventListener('click', function(e) {
-      e.preventDefault();
-      document.getElementById('dashboard-content').style.display = 'none';
-      document.getElementById('firebase-services-section').style.display = 'none';
-      document.getElementById('whatsapp-automation-section').style.display = 'block';
-      document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
-      this.classList.add('active');
-    });
-
-    // WhatsApp Service control functions
-    function startWhatsAppService() {
-      addWhatsAppLog('🟢 WhatsApp Bot started');
-      document.getElementById('whatsapp-bot-status').textContent = 'Active';
-      document.getElementById('whatsapp-bot-status-detail').textContent = 'Connected';
-      document.getElementById('whatsapp-connection-status').textContent = 'Connected';
-      updateWhatsAppStatus('Active');
-    }
-    
-    function stopWhatsAppService() {
-      addWhatsAppLog('🔴 WhatsApp Bot stopped');
-      document.getElementById('whatsapp-bot-status').textContent = 'Inactive';
-      document.getElementById('whatsapp-bot-status-detail').textContent = 'Disconnected';
-      document.getElementById('whatsapp-connection-status').textContent = 'Disconnected';
-      updateWhatsAppStatus('Inactive');
-    }
-    
-    function testWhatsAppConnection() {
-      addWhatsAppLog('🔍 Testing WhatsApp connection...');
-      setTimeout(() => {
-        addWhatsAppLog('✅ WhatsApp connection test successful');
-        document.getElementById('whatsapp-last-ping').textContent = 'Just now';
-      }, 2000);
-    }
-    
-    function restartWhatsAppBot() {
-      addWhatsAppLog('🔄 Restarting WhatsApp Bot...');
-      document.getElementById('whatsapp-bot-status').textContent = 'Restarting...';
-      setTimeout(() => {
-        addWhatsAppLog('✅ WhatsApp Bot restarted successfully');
-        document.getElementById('whatsapp-bot-status').textContent = 'Active';
-        document.getElementById('whatsapp-bot-status-detail').textContent = 'Connected';
-        updateWhatsAppStatus('Active');
-      }, 3000);
-    }
-    
-    function sendBulkNotification() {
-      addWhatsAppLog('📢 Sending bulk notifications...');
-      // Simulate bulk notification
-      setTimeout(() => {
-        addWhatsAppLog('✅ Bulk notifications sent to 15 customers');
-        updateWhatsAppStats(15);
-      }, 2000);
-    }
-    
-    function viewNotificationHistory() {
-      addWhatsAppLog('📋 Loading notification history...');
-      // Simulate loading history
-      setTimeout(() => {
-        addWhatsAppLog('📊 Notification history loaded: 45 notifications in last 7 days');
-      }, 1500);
-    }
-    
-    function exportNotificationData() {
-      addWhatsAppLog('📥 Exporting notification data...');
-      // Simulate data export
-      setTimeout(() => {
-        addWhatsAppLog('✅ Notification data exported successfully (CSV format)');
-      }, 2000);
-    }
-    
-    function updateWhatsAppStatus(status) {
-      const statusElement = document.getElementById('whatsapp-notification-status');
-      if (statusElement) {
-        statusElement.textContent = status;
-      }
-    }
-    
-    function updateWhatsAppStats(count = 1) {
-      const todayCount = document.getElementById('whatsapp-today-count');
-      const weekCount = document.getElementById('whatsapp-week-count');
-      const notificationsSent = document.getElementById('whatsapp-notifications-sent');
-      const customersReached = document.getElementById('whatsapp-customers-reached');
-      
-      if (todayCount) {
-        const current = parseInt(todayCount.textContent) || 0;
-        todayCount.textContent = current + count;
-      }
-      
-      if (weekCount) {
-        const current = parseInt(weekCount.textContent) || 0;
-        weekCount.textContent = current + count;
-      }
-      
-      if (notificationsSent) {
-        const current = parseInt(notificationsSent.textContent) || 0;
-        notificationsSent.textContent = current + count;
-      }
-      
-      if (customersReached) {
-        const current = parseInt(customersReached.textContent) || 0;
-        customersReached.textContent = current + count;
-      }
-    }
-    
-    function addWhatsAppLog(message, isError = false) {
-      const logs = document.getElementById('whatsapp-logs');
-      if (logs) {
-        const logEntry = document.createElement('div');
-        logEntry.className = 'log-entry' + (isError ? ' error' : '');
-        logEntry.textContent = new Date().toLocaleTimeString() + ' - ' + message;
-        logs.appendChild(logEntry);
-        logs.scrollTop = logs.scrollHeight;
-      }
-    }
-    // Weather Service control functions (placeholders)
-    function startWeatherService() {
-      document.getElementById('weather-service-status').textContent = 'Active';
-       addWeatherLog('🟢 Weather Notification Service started');
-    }
-    function stopWeatherService() {
-      document.getElementById('weather-service-status').textContent = 'Inactive';
-       addWeatherLog('🔴 Weather Notification Service stopped');
-    }
-    // Show modal on Edit button click
-    function editWeatherService() {
-      document.getElementById('edit-api-modal').style.display = 'flex';
-    }
-    document.getElementById('close-edit-api-modal').onclick = function() {
-      document.getElementById('edit-api-modal').style.display = 'none';
-    };
-    // Handle API key form submit
-    document.getElementById('edit-api-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const openweather = document.getElementById('edit-openweather-api-key').value.trim();
-      const gemini = document.getElementById('edit-gemini-api-key').value.trim();
-      const openai = document.getElementById('edit-openai-api-key').value.trim();
-      if (!openweather || !gemini || !openai) return alert('Please fill all fields.');
-      try {
-        const res = await fetch('/set-multi-api-keys', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ openweather, gemini, openai })
-        });
-        const result = await res.json();
-        if (result.success) {
-          alert('✅ API keys saved successfully!');
-          document.getElementById('edit-api-modal').style.display = 'none';
-        } else {
-          alert('❌ Failed to save API keys: ' + (result.error || 'Unknown error'));
-        }
-      } catch (err) {
-        alert('❌ Error: ' + err.message);
-      }
-    });
-    // Send Bollywood-style weather notification
-    async function sendWeatherNotification() {
-      // Get selected AI provider
-      const provider = document.querySelector('input[name="ai-provider"]:checked').value;
-      
-      try {
-        addWeatherLog(`🌤️ Sending weather notification for Tanakpur using ${provider.toUpperCase()}...`);
-        const res = await fetch('/weather-notification', { 
-          method: 'POST', 
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            city: 'Tanakpur',
-            provider: provider
-          })
-        });
-        const result = await res.json();
-        if (result.success) {
-           addWeatherLog(`✅ Weather notification sent successfully using ${provider.toUpperCase()}!`);
-           addWeatherLog(`📱 City: ${result.weatherInfo.city}`);
-           addWeatherLog(`🌧️ Weather: ${result.weatherInfo.description} (${result.weatherInfo.isRainy ? 'Rainy' : 'Not Rainy'})`);
-           addWeatherLog(`🌡️ Temperature: ${result.weatherInfo.temperature}°C`);
-           addWeatherLog(`🤖 AI Provider: ${provider.toUpperCase()}`);
-           addWeatherLog(`📝 Title: ${result.notification.title}`);
-           addWeatherLog(`📝 Body: ${result.notification.body}`);
-           addWeatherLog(`📱 FCM: ${result.fcmResult.summary.successful}/${result.fcmResult.summary.total} devices notified`);
-           
-           alert(`✅ Weather notification sent successfully using ${provider.toUpperCase()}!\n\n🌤️ ${result.weatherInfo.city}: ${result.weatherInfo.description}\n🌡️ ${result.weatherInfo.temperature}°C\n📱 Sent to ${result.fcmResult.summary.successful} devices`);
-        } else {
-           addWeatherLog('❌ Failed to send notification: ' + (result.error || 'Unknown error'), true);
-          alert('❌ Failed to send notification: ' + (result.error || 'Unknown error'));
-        }
-      } catch (err) {
-         addWeatherLog('❌ Error: ' + err.message, true);
-        alert('❌ Error: ' + err.message);
-      }
-    }
-
-     // Weather logs function
-     function addWeatherLog(message, isError = false) {
-       const logs = document.getElementById('weather-logs');
-       const logEntry = document.createElement('div');
-       logEntry.className = 'log-entry' + (isError ? ' error' : '');
-       logEntry.textContent = new Date().toLocaleTimeString() + ' - ' + message;
-       logs.appendChild(logEntry);
-       logs.scrollTop = logs.scrollHeight;
-     }
-
-     // Scheduler control functions
-     async function getSchedulerStatus() {
-       try {
-         const response = await fetch('/scheduler/status');
-         const result = await response.json();
-         if (result.success) {
-           updateSchedulerUI(result.status);
-         }
-       } catch (error) {
-         console.error('Error getting scheduler status:', error);
-       }
-     }
-
-     function updateSchedulerUI(status) {
-       // Update main dashboard stat
-       const schedulerStat = document.getElementById('stat-scheduler-status');
-       if (schedulerStat) {
-         schedulerStat.textContent = status.isRunning ? 'Active' : 'Inactive';
-       }
-
-       // Update scheduler section
-       const schedulerStatus = document.getElementById('scheduler-status');
-       const currentTime = document.getElementById('current-time');
-       const notificationCount = document.getElementById('notification-count');
-       const nextNotification = document.getElementById('next-notification');
-
-       if (schedulerStatus) schedulerStatus.textContent = status.isRunning ? 'Running' : 'Stopped';
-       if (currentTime) currentTime.textContent = status.currentTime;
-       if (notificationCount) notificationCount.textContent = status.notificationCount;
-       if (nextNotification) nextNotification.textContent = status.nextNotificationTime;
-     }
-
-     async function startScheduler() {
-       try {
-         addWeatherLog('🟢 Starting weather scheduler...');
-         const response = await fetch('/scheduler/start', { method: 'POST' });
-         const result = await response.json();
-         if (result.success) {
-           addWeatherLog('✅ Weather scheduler started successfully');
-           updateSchedulerUI(result.status);
-         } else {
-           addWeatherLog('❌ Failed to start scheduler: ' + result.error, true);
-         }
-       } catch (error) {
-         addWeatherLog('❌ Error starting scheduler: ' + error.message, true);
-       }
-     }
-
-     async function stopScheduler() {
-       try {
-         addWeatherLog('🔴 Stopping weather scheduler...');
-         const response = await fetch('/scheduler/stop', { method: 'POST' });
-         const result = await response.json();
-         if (result.success) {
-           addWeatherLog('✅ Weather scheduler stopped successfully');
-           updateSchedulerUI(result.status);
-         } else {
-           addWeatherLog('❌ Failed to stop scheduler: ' + result.error, true);
-         }
-       } catch (error) {
-         addWeatherLog('❌ Error stopping scheduler: ' + error.message, true);
-       }
-     }
-
-     async function triggerManualNotification() {
-       try {
-         addWeatherLog('🎯 Triggering manual weather notification...');
-         const response = await fetch('/scheduler/trigger', { method: 'POST' });
-         const result = await response.json();
-         if (result.success) {
-           addWeatherLog('✅ Manual weather notification sent successfully');
-           updateSchedulerUI(result.status);
-         } else {
-           addWeatherLog('❌ Failed to send manual notification: ' + result.error, true);
-         }
-       } catch (error) {
-         addWeatherLog('❌ Error triggering manual notification: ' + error.message, true);
-       }
-     }
-
-     async function resetNotificationCount() {
-       try {
-         addWeatherLog('🔄 Resetting notification count...');
-         const response = await fetch('/scheduler/reset', { method: 'POST' });
-         const result = await response.json();
-         if (result.success) {
-           addWeatherLog('✅ Notification count reset successfully');
-           updateSchedulerUI(result.status);
-         } else {
-           addWeatherLog('❌ Failed to reset count: ' + result.error, true);
-         }
-       } catch (error) {
-         addWeatherLog('❌ Error resetting count: ' + error.message, true);
-       }
-     }
-
-     // Auto-refresh scheduler status every 30 seconds
-     setInterval(getSchedulerStatus, 30000);
-     
-     // Initial load
-     getSchedulerStatus();
-     
-  </script>
+  <script src="js/dashboard.js"></script>
 </body>
+
 </html>

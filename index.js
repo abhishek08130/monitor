@@ -26,7 +26,7 @@ app.use('/asset', express.static('asset'));
 // Auth middleware (protect all except login/logout/assets)
 app.use((req, res, next) => {
   const openPaths = [
-    '/login', '/logout', '/asset', '/favicon.ico', '/public', '/api-keys', '/set-multi-api-keys'
+    '/login', '/logout', '/asset', '/favicon.ico', '/public', '/api-keys', '/set-multi-api-keys', '/scheduler/trigger', '/weather-notification'
   ];
   if (
     openPaths.some(p => req.path.startsWith(p)) ||
@@ -72,20 +72,20 @@ async function initializeApp() {
   try {
     // Initialize Firebase
     initializeFirebase();
-    
+
     // Initialize services
     firestoreMonitor = new FirestoreMonitor();
     whatsappService = new WhatsAppService();
     weatherScheduler = new WeatherScheduler();
-    
+
     console.log('🚀 Application initialized successfully');
-    
+
     // Start monitoring Firestore
     firestoreMonitor.startListening();
-    
+
     // Start weather scheduler
     weatherScheduler.start();
-    
+
   } catch (error) {
     console.error('❌ Failed to initialize application:', error);
     process.exit(1);
@@ -117,16 +117,16 @@ app.post('/test-notification', async (req, res) => {
 
     // Send customer notification only
     const customerResult = await whatsappService.sendCustomerTemplateMessage(testOrder);
-    
+
     if (customerResult.success === false) {
-      res.json({ 
-        success: false, 
+      res.json({
+        success: false,
         error: customerResult.message,
         customerResult
       });
     } else {
-      res.json({ 
-        success: true, 
+      res.json({
+        success: true,
         message: 'Test notification sent successfully to customer',
         customerResult
       });
@@ -161,7 +161,7 @@ app.get('/health', (req, res) => {
 app.post('/weather-notification', async (req, res) => {
   try {
     const { city = 'Tanakpur', provider = 'gemini' } = req.body;
-    
+
     // Validate provider
     if (provider !== 'gemini' && provider !== 'openai') {
       return res.status(400).json({
@@ -170,12 +170,12 @@ app.post('/weather-notification', async (req, res) => {
         validProviders: ['gemini', 'openai']
       });
     }
-    
+
     console.log(`🌤️ Starting weather notification process for ${city} using ${provider} AI...`);
-    
+
     // Step 1: Get weather data and generate Bollywood notification with specified provider
     const weatherResult = await weatherService.getWeatherAndMessage(city, provider);
-    
+
     console.log('📱 Weather data and notification generated:', {
       city: weatherResult.weatherInfo.city,
       weather: weatherResult.weatherInfo.description,
@@ -186,16 +186,16 @@ app.post('/weather-notification', async (req, res) => {
       timestamp: new Date().toISOString(), // Add timestamp to show it's newly generated
       uniqueId: Math.random().toString(36).substring(2, 10) // Add unique ID for each notification
     });
-    
+
     console.log('🆕 Generated a fresh notification at:', new Date().toLocaleString(), 'using', provider);
-    
+
     // Step 2: Get all customer FCM tokens
     const tokens = await firestoreMonitor.getAllCustomerFcmTokens();
     console.log(`[DEBUG] Weather notification: Found ${tokens.length} FCM tokens`);
-    
+
     if (!tokens.length) {
-      return res.json({ 
-        success: false, 
+      return res.json({
+        success: false,
         error: 'No customer FCM tokens found',
         suggestion: 'Make sure your orders have FCM tokens in author.fcmToken, fcmToken, customer.fcmToken, or user.fcmToken fields',
         weatherInfo: weatherResult.weatherInfo,
@@ -203,28 +203,28 @@ app.post('/weather-notification', async (req, res) => {
         provider: weatherResult.provider
       });
     }
-    
+
     // Step 3: Send FCM notification with generated title and body
     const title = weatherResult.notification.title;
     const body = weatherResult.notification.body;
-    
+
     const fcmResult = await firestoreMonitor.sendFcmNotification(tokens, title, body);
-    
+
     console.log('📱 FCM notification sent:', fcmResult);
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       message: `Weather notification sent successfully using ${provider}!`,
       weatherInfo: weatherResult.weatherInfo,
       notification: weatherResult.notification,
       provider: weatherResult.provider,
       fcmResult: fcmResult
     });
-    
+
   } catch (error) {
     console.error('❌ Weather notification error:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: error.message,
       details: error.stack
     });
@@ -235,26 +235,26 @@ app.post('/weather-notification', async (req, res) => {
 app.post('/test-fcm', async (req, res) => {
   try {
     const { title = 'Test Notification', body = 'This is a test FCM notification' } = req.body;
-    
+
     // Get all customer FCM tokens
     const tokens = await firestoreMonitor.getAllCustomerFcmTokens();
     console.log(`[DEBUG] Test FCM: Found ${tokens.length} FCM tokens`);
-    
+
     if (!tokens.length) {
-      return res.json({ 
-        success: false, 
+      return res.json({
+        success: false,
         error: 'No customer FCM tokens found',
         suggestion: 'Make sure your orders have FCM tokens in author.fcmToken, fcmToken, customer.fcmToken, or user.fcmToken fields'
       });
     }
-    
+
     // Send test FCM notification
     const fcmResult = await firestoreMonitor.sendFcmNotification(tokens, title, body);
-    
-    res.json({ 
-      success: fcmResult.success, 
+
+    res.json({
+      success: fcmResult.success,
       fcmResult,
-      message: fcmResult.success ? 
+      message: fcmResult.success ?
         `Test notification sent to ${fcmResult.summary?.successful || 0} devices` :
         `Failed to send test notifications: ${fcmResult.error}`
     });
@@ -268,8 +268,8 @@ app.post('/test-fcm', async (req, res) => {
 app.get('/fcm-tokens', async (req, res) => {
   try {
     const tokens = await firestoreMonitor.getAllCustomerFcmTokens();
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       count: tokens.length,
       tokens: tokens.map(token => token.substring(0, 10) + '...'),
       message: `Found ${tokens.length} FCM tokens`
@@ -284,19 +284,19 @@ app.get('/fcm-tokens', async (req, res) => {
 app.post('/test-specific-fcm', async (req, res) => {
   try {
     const { title = 'Test Notification', body = 'This is a test FCM notification' } = req.body;
-    
+
     // Use the specific FCM token provided
     const specificToken = 'cbbTRN-XR_ioSPHsIJlaBt:APA91bHXxTGAXFZgq8yjVc9Ioqep6lf3NMMI6ZkDSpSxhMWBuEWEaDE6-zuoDTnu4rBrT45kE_XwPwKUdFQHphK-MSiYqiEDKRxL39me7wmtlcobMou0MPI';
-    
+
     console.log(`[DEBUG] Testing FCM with specific token: ${specificToken.substring(0, 20)}...`);
-    
+
     // Send test FCM notification to the specific token
     const fcmResult = await firestoreMonitor.sendFcmNotification([specificToken], title, body);
-    
-    res.json({ 
-      success: fcmResult.success, 
+
+    res.json({
+      success: fcmResult.success,
       fcmResult,
-      message: fcmResult.success ? 
+      message: fcmResult.success ?
         `Test notification sent to specific token` :
         `Failed to send test notification: ${fcmResult.error}`,
       tokenUsed: specificToken.substring(0, 20) + '...'
@@ -310,19 +310,19 @@ app.post('/test-specific-fcm', async (req, res) => {
 // Set multiple API keys endpoint
 app.post('/set-multi-api-keys', async (req, res) => {
   try {
-  const { openweather, gemini, openai } = req.body;
-    
+    const { openweather, gemini, openai } = req.body;
+
     if (!openweather || !gemini || !openai) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'All API keys are required: openweather, gemini, openai' 
+      return res.status(400).json({
+        success: false,
+        error: 'All API keys are required: openweather, gemini, openai'
       });
     }
-    
+
     await weatherService.setMultiApiKeys({ openweather, gemini, openai });
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       message: 'All API keys saved successfully!',
       keys: {
         openweather: openweather.substring(0, 8) + '...',
@@ -344,7 +344,7 @@ app.get('/api-keys', async (req, res) => {
       gemini: weatherService.getApiKey('gemini'),
       openai: weatherService.getApiKey('openai')
     };
-    
+
     // Mask the keys for security
     const maskedKeys = {};
     Object.entries(keys).forEach(([service, key]) => {
@@ -354,9 +354,9 @@ app.get('/api-keys', async (req, res) => {
         maskedKeys[service] = null;
       }
     });
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       keys: maskedKeys,
       configured: Object.values(keys).filter(key => key).length
     });
@@ -375,15 +375,15 @@ app.get('/auth-check', (req, res) => {
 app.get('/scheduler/status', (req, res) => {
   try {
     if (!weatherScheduler) {
-      return res.status(500).json({ 
-        success: false, 
-        error: 'Weather scheduler not initialized' 
+      return res.status(500).json({
+        success: false,
+        error: 'Weather scheduler not initialized'
       });
     }
-    
+
     const status = weatherScheduler.getStatus();
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       status: status
     });
   } catch (error) {
@@ -395,15 +395,15 @@ app.get('/scheduler/status', (req, res) => {
 app.post('/scheduler/start', (req, res) => {
   try {
     if (!weatherScheduler) {
-      return res.status(500).json({ 
-        success: false, 
-        error: 'Weather scheduler not initialized' 
+      return res.status(500).json({
+        success: false,
+        error: 'Weather scheduler not initialized'
       });
     }
-    
+
     weatherScheduler.start();
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       message: 'Weather scheduler started successfully',
       status: weatherScheduler.getStatus()
     });
@@ -416,15 +416,15 @@ app.post('/scheduler/start', (req, res) => {
 app.post('/scheduler/stop', (req, res) => {
   try {
     if (!weatherScheduler) {
-      return res.status(500).json({ 
-        success: false, 
-        error: 'Weather scheduler not initialized' 
+      return res.status(500).json({
+        success: false,
+        error: 'Weather scheduler not initialized'
       });
     }
-    
+
     weatherScheduler.stop();
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       message: 'Weather scheduler stopped successfully',
       status: weatherScheduler.getStatus()
     });
@@ -437,15 +437,15 @@ app.post('/scheduler/stop', (req, res) => {
 app.post('/scheduler/trigger', async (req, res) => {
   try {
     if (!weatherScheduler) {
-      return res.status(500).json({ 
-        success: false, 
-        error: 'Weather scheduler not initialized' 
+      return res.status(500).json({
+        success: false,
+        error: 'Weather scheduler not initialized'
       });
     }
-    
+
     await weatherScheduler.manualTrigger();
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       message: 'Manual weather notification triggered successfully',
       status: weatherScheduler.getStatus()
     });
@@ -458,15 +458,15 @@ app.post('/scheduler/trigger', async (req, res) => {
 app.post('/scheduler/reset', (req, res) => {
   try {
     if (!weatherScheduler) {
-      return res.status(500).json({ 
-        success: false, 
-        error: 'Weather scheduler not initialized' 
+      return res.status(500).json({
+        success: false,
+        error: 'Weather scheduler not initialized'
       });
     }
-    
+
     weatherScheduler.resetCount();
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       message: 'Notification count reset successfully',
       status: weatherScheduler.getStatus()
     });
