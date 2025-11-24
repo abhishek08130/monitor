@@ -16,9 +16,27 @@
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-  <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css">
-</head>
+  <!DOCTYPE html>
+  <html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pivokart Monitor | Admin Dashboard</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+  </head>
 
 <body>
 
@@ -40,6 +58,63 @@
           <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- Stop Services Modal -->
+  <div id="stop-services-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <div
+          style="width: 80px; height: 80px; background: rgba(239, 68, 68, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+          <i class="fa-solid fa-triangle-exclamation" style="font-size: 2.5rem; color: var(--danger);"></i>
+        </div>
+        <h2 style="font-size: 1.8rem; color: var(--text-main); margin-bottom: 0.5rem;">Stop All Services?</h2>
+        <p style="color: var(--text-secondary);">This will stop the Firestore listener and Weather scheduler. You will
+          need to restart the server to resume.</p>
+      </div>
+      <div style="display: flex; gap: 1rem; justify-content: center;">
+        <button class="btn btn-glass" onclick="closeModal('stop-services-modal')">Cancel</button>
+        <button class="btn btn-danger" onclick="confirmStopServices()">
+          <i class="fa-solid fa-power-off"></i> Yes, Stop Everything
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications Modal -->
+  <div id="notifications-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.5rem; color: var(--text-main);">Notifications</h2>
+        <button class="btn btn-glass" style="padding: 0.5rem;" onclick="closeModal('notifications-modal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="logs-container"
+        style="max-height: 300px; margin-bottom: 0; padding: 0; border: none; background: transparent; box-shadow: none;">
+        <div class="logs-scroll" id="notification-list">
+          <!-- Mock Notifications -->
+          <div class="log-entry success">
+            <i class="fa-solid fa-check-circle"></i>
+            <div>
+              <div style="font-weight: 600; color: var(--text-main);">System Online</div>
+              <div style="font-size: 0.8rem; opacity: 0.7;">Just now</div>
+            </div>
+          </div>
+          <div class="log-entry">
+            <i class="fa-solid fa-info-circle"></i>
+            <div>
+              <div style="font-weight: 600; color: var(--text-main);">Welcome Back</div>
+              <div style="font-size: 0.8rem; opacity: 0.7;">2 minutes ago</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top: 1.5rem; text-align: center;">
+        <button class="btn btn-glass" style="width: 100%; justify-content: center;"
+          onclick="closeModal('notifications-modal')">Close</button>
+      </div>
     </div>
   </div>
 
@@ -65,11 +140,11 @@
           <i class="fa-solid fa-fire"></i>
           <span>Firebase Services</span>
         </a>
-        <a href="#" class="nav-item">
+        <a href="#" class="nav-item" onclick="showToast('Customers module coming soon!')">
           <i class="fa-solid fa-users"></i>
           <span>Customers</span>
         </a>
-        <a href="#" class="nav-item">
+        <a href="#" class="nav-item" onclick="showToast('Orders module coming soon!')">
           <i class="fa-solid fa-list-check"></i>
           <span>Orders</span>
         </a>
@@ -77,7 +152,7 @@
 
       <div class="sidebar-footer">
         <p>&copy; 2024 Pivokart Admin</p>
-        <p style="font-size: 0.75rem; opacity: 0.5;">v2.5.0 Premium</p>
+        <p style="font-size: 0.75rem; opacity: 0.5;">v3.0.0 Premium</p>
       </div>
     </aside>
 
@@ -85,22 +160,31 @@
     <main class="main">
       <!-- Topbar -->
       <header class="topbar">
-        <div class="notification-bell">
+        <div class="notification-bell" onclick="openModal('notifications-modal')">
           <i class="fa-regular fa-bell"></i>
-          <span class="badge">3</span>
+          <span class="badge">2</span>
         </div>
 
-        <div class="user-profile">
+        <div class="user-profile" onclick="toggleProfileMenu()">
           <img src="https://lh3.googleusercontent.com/a-/ALV-UjVZ34b0gLkhZjEzM0sfphggtOlTtn0dvFjmk0Vb3w259wQeOpBk=s300"
             alt="Admin" class="avatar">
           <span class="user-name">Super Admin</span>
           <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem; opacity: 0.7;"></i>
         </div>
 
-        <button onclick="logout()" class="btn btn-glass"
-          style="padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center;">
-          <i class="fa-solid fa-power-off" style="color: var(--danger);"></i>
-        </button>
+        <!-- Simple Profile Menu Dropdown (Hidden by default) -->
+        <div id="profile-menu"
+          style="position: absolute; top: 80px; right: 3rem; background: var(--bg-card); border: var(--glass-border); border-radius: var(--radius-md); padding: 0.5rem; display: none; flex-direction: column; width: 150px; backdrop-filter: blur(20px); box-shadow: var(--glass-shadow);">
+          <button class="btn btn-glass"
+            style="width: 100%; justify-content: flex-start; border: none; margin-bottom: 0.25rem;"
+            onclick="showToast('Profile settings coming soon')">
+            <i class="fa-solid fa-user"></i> Profile
+          </button>
+          <button class="btn btn-danger" style="width: 100%; justify-content: flex-start;" onclick="logout()">
+            <i class="fa-solid fa-power-off"></i> Logout
+          </button>
+        </div>
+
       </header>
 
       <!-- Dashboard Section -->
@@ -150,9 +234,11 @@
           <div class="chart-card" style="grid-column: span 2;">
             <div class="chart-header">
               <h3 class="chart-title">Activity Overview</h3>
-              <select
-                style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 4px 8px; border-radius: 4px;">
-                <option>Last 7 Days</option>
+              <select id="activity-filter" onchange="updateChartFilter(this.value)"
+                style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; outline: none;">
+                <option value="7">Last 7 Days</option>
+                <option value="30">Last 30 Days</option>
+                <option value="24">Last 24 Hours</option>
               </select>
             </div>
             <div style="flex: 1; position: relative;">
@@ -174,7 +260,11 @@
         <div class="logs-container">
           <div class="chart-header">
             <h3 class="chart-title">System Logs</h3>
-            <span style="font-size: 0.8rem; color: var(--success);">● Live</span>
+            <span style="font-size: 0.8rem; color: var(--success); display: flex; align-items: center; gap: 0.5rem;">
+              <span
+                style="width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 10px var(--success);"></span>
+              Live
+            </span>
           </div>
           <div class="logs-scroll" id="logs">
             <!-- Logs injected here -->
@@ -185,7 +275,7 @@
           <button class="btn btn-primary" onclick="getRecentOrders()">
             <i class="fa-solid fa-rotate"></i> Refresh Data
           </button>
-          <button class="btn btn-danger">
+          <button class="btn btn-danger" onclick="openModal('stop-services-modal')">
             <i class="fa-solid fa-stop"></i> Stop Services
           </button>
         </div>
@@ -212,53 +302,7 @@
         </div>
 
         <div class="logs-container">
-          <h3 class="chart-title" style="margin-bottom: 1rem;">WhatsApp Logs</h3>
-          <div class="logs-scroll" id="whatsapp-logs"></div>
-        </div>
-      </div>
-
-      <!-- Firebase Section -->
-      <div id="firebase-services-section" class="content" style="display: none;">
-        <div class="section-header">
-          <h1 class="section-title">Firebase & Weather</h1>
-          <p class="section-subtitle">Configure cloud services and integrations</p>
-        </div>
-
-        <div class="chart-card" style="margin-bottom: 2rem;">
-          <div class="chart-header">
-            <h3 class="chart-title">Weather Notification Config</h3>
-          </div>
-
-          <div style="display: flex; gap: 2rem; margin-bottom: 2rem;">
-            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-              <input type="radio" name="ai-provider" value="gemini" checked>
-              <span>Gemini AI (Recommended)</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-              <input type="radio" name="ai-provider" value="openai">
-              <span>OpenAI (GPT-4)</span>
-            </label>
-          </div>
-
-          <div class="actions-bar" style="justify-content: flex-start;">
-            <button class="btn btn-primary" onclick="sendWeatherNotification()">
-              <i class="fa-solid fa-cloud-bolt"></i> Send Test Notification
-            </button>
-          </div>
-        </div>
-
-        <div class="logs-container">
-          <h3 class="chart-title" style="margin-bottom: 1rem;">Weather Service Logs</h3>
-          <div class="logs-scroll" id="weather-logs"></div>
-        </div>
-      </div>
-
-    </main>
-  </div>
-
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="js/dashboard.js"></script>
+          <script src="js/dashboard.js"></script>
 </body>
 
 </html>

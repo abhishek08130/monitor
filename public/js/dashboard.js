@@ -14,10 +14,12 @@ const els = {
     sidebar: document.querySelector('.sidebar'),
     main: document.querySelector('.main'),
     navLinks: document.querySelectorAll('.nav-item'),
+    profileMenu: document.getElementById('profile-menu'),
     logs: {
         main: document.getElementById('logs'),
         whatsapp: document.getElementById('whatsapp-logs'),
-        weather: document.getElementById('weather-logs')
+        weather: document.getElementById('weather-logs'),
+        notifications: document.getElementById('notification-list')
     }
 };
 
@@ -27,6 +29,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     checkAuth();
     setupEventListeners();
     startPeriodicUpdates();
+    
+    // Add toast container
+    const toastContainer = document.createElement('div');
+    toastContainer.id = 'toast-container';
+    toastContainer.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px;';
+    document.body.appendChild(toastContainer);
 });
 
 // Authentication
@@ -53,7 +61,7 @@ function handleLoginSuccess() {
     isAuthenticated = true;
     els.loginModal.classList.remove('active');
     document.querySelector('.layout').style.filter = 'none';
-    addLog('👋 Welcome back, Admin!');
+    addLog('👋 Welcome back, Admin!', 'success');
 }
 
 async function logout() {
@@ -72,7 +80,10 @@ function switchSection(sectionId) {
     const target = document.getElementById(sectionId);
     if (target) {
         target.style.display = 'block';
-        target.style.animation = 'fadeIn 0.5s ease-out';
+        // Reset animation
+        target.style.animation = 'none';
+        target.offsetHeight; /* trigger reflow */
+        target.style.animation = 'slideUpFade 0.6s cubic-bezier(0.215, 0.61, 0.355, 1)';
     }
 
     // Update nav active state
@@ -84,13 +95,96 @@ function switchSection(sectionId) {
     });
 }
 
+// UI Functions
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.add('active');
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.remove('active');
+}
+
+function toggleProfileMenu() {
+    const menu = document.getElementById('profile-menu');
+    if (menu.style.display === 'flex') {
+        menu.style.display = 'none';
+    } else {
+        menu.style.display = 'flex';
+    }
+}
+
+// Close profile menu when clicking outside
+document.addEventListener('click', (e) => {
+    const menu = document.getElementById('profile-menu');
+    const profile = document.querySelector('.user-profile');
+    if (menu && profile && !menu.contains(e.target) && !profile.contains(e.target)) {
+        menu.style.display = 'none';
+    }
+});
+
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    
+    let bg = 'rgba(30, 41, 59, 0.9)';
+    let border = 'var(--primary)';
+    let icon = 'fa-info-circle';
+    
+    if (type === 'success') {
+        border = 'var(--success)';
+        icon = 'fa-check-circle';
+    } else if (type === 'error') {
+        border = 'var(--danger)';
+        icon = 'fa-exclamation-circle';
+    }
+    
+    toast.style.cssText = `
+        background: ${bg};
+        backdrop-filter: blur(10px);
+        border-left: 4px solid ${border};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 300px;
+        transform: translateX(100%);
+        transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        font-family: 'Outfit', sans-serif;
+    `;
+    
+    toast.innerHTML = `<i class="fa-solid ${icon}" style="color: ${border}"></i> <span>${message}</span>`;
+    
+    container.appendChild(toast);
+    
+    // Trigger animation
+    requestAnimationFrame(() => {
+        toast.style.transform = 'translateX(0)';
+    });
+    
+    setTimeout(() => {
+        toast.style.transform = 'translateX(120%)';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
 // Charts
 function initCharts() {
     Chart.defaults.color = '#94a3b8';
     Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.05)';
+    Chart.defaults.font.family = "'Outfit', sans-serif";
 
     const ctxBar = document.getElementById('barChart')?.getContext('2d');
     if (ctxBar) {
+        // Gradient for bar chart
+        const gradient = ctxBar.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, '#6366f1');
+        gradient.addColorStop(1, '#d946ef');
+
         charts.bar = new Chart(ctxBar, {
             type: 'bar',
             data: {
@@ -98,14 +192,35 @@ function initCharts() {
                 datasets: [{
                     label: 'Notifications',
                     data: [12, 19, 3, 5, 2, 3, 9],
-                    backgroundColor: '#6366f1',
-                    borderRadius: 6
+                    backgroundColor: gradient,
+                    borderRadius: 8,
+                    barThickness: 20,
+                    hoverBackgroundColor: '#818cf8'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } }
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleColor: '#f8fafc',
+                        bodyColor: '#cbd5e1',
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255, 255, 255, 0.02)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
             }
         });
     }
@@ -118,16 +233,33 @@ function initCharts() {
                 labels: ['Admin', 'Customer'],
                 datasets: [{
                     data: [30, 70],
-                    backgroundColor: ['#6366f1', '#ec4899'],
-                    borderWidth: 0
+                    backgroundColor: ['#6366f1', '#d946ef'],
+                    borderWidth: 0,
+                    hoverOffset: 4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom' } }
+                cutout: '75%',
+                plugins: { 
+                    legend: { 
+                        position: 'bottom',
+                        labels: { padding: 20, usePointStyle: true }
+                    } 
+                }
             }
         });
+    }
+}
+
+function updateChartFilter(days) {
+    showToast(`Filtering data for last ${days} days...`);
+    // Mock data update
+    if (charts.bar) {
+        const newData = Array.from({length: 7}, () => Math.floor(Math.random() * 20) + 1);
+        charts.bar.data.datasets[0].data = newData;
+        charts.bar.update();
     }
 }
 
@@ -137,26 +269,48 @@ function addLog(message, type = 'info', section = 'main') {
     if (!container) return;
 
     const entry = document.createElement('div');
-    entry.className = `log-entry ${type === 'error' ? 'error' : ''}`;
+    entry.className = `log-entry ${type === 'error' ? 'error' : type === 'success' ? 'success' : ''}`;
+    
+    let icon = 'fa-info-circle';
+    if (type === 'success') icon = 'fa-check-circle';
+    if (type === 'error') icon = 'fa-triangle-exclamation';
+    if (message.includes('Weather')) icon = 'fa-cloud';
+
     entry.innerHTML = `
-        <span style="opacity:0.7; margin-right:8px">[${new Date().toLocaleTimeString()}]</span>
-        ${message}
+        <i class="fa-solid ${icon}"></i>
+        <div>
+            <div style="color: var(--text-main); font-weight: 500;">${message}</div>
+            <div style="font-size: 0.75rem; opacity: 0.5;">${new Date().toLocaleTimeString()}</div>
+        </div>
     `;
 
-    container.appendChild(entry);
-    container.scrollTop = container.scrollHeight;
+    container.insertBefore(entry, container.firstChild);
+    // Limit logs
+    if (container.children.length > 50) {
+        container.removeChild(container.lastChild);
+    }
 }
 
 // API Actions
 async function getRecentOrders() {
     try {
+        const btn = document.querySelector('button[onclick="getRecentOrders()"] i');
+        if(btn) btn.classList.add('fa-spin');
+        
         addLog('🔄 Fetching recent orders...');
         const res = await fetch('/recent-orders');
         const orders = await res.json();
-        addLog(`✅ Found ${orders.length} recent orders`);
-        document.getElementById('stat-total-orders').textContent = orders.length;
+        
+        setTimeout(() => {
+            if(btn) btn.classList.remove('fa-spin');
+            addLog(`✅ Found ${orders.length} recent orders`, 'success');
+            document.getElementById('stat-total-orders').textContent = orders.length;
+            showToast('Orders updated successfully', 'success');
+        }, 800);
+        
     } catch (err) {
         addLog(`❌ Error: ${err.message}`, 'error');
+        showToast('Failed to fetch orders', 'error');
     }
 }
 
@@ -164,6 +318,8 @@ async function sendWeatherNotification() {
     const provider = document.querySelector('input[name="ai-provider"]:checked').value;
     try {
         addLog(`🌤️ Sending weather notification via ${provider.toUpperCase()}...`, 'info', 'weather');
+        showToast(`Generating weather alert with ${provider.toUpperCase()}...`);
+        
         const res = await fetch('/weather-notification', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -173,13 +329,30 @@ async function sendWeatherNotification() {
 
         if (result.success) {
             addLog(`✅ Notification sent! Temp: ${result.weatherInfo.temperature}°C`, 'success', 'weather');
-            alert(`Weather Notification Sent!\n\n${result.notification.title}`);
+            showToast('Weather notification sent successfully!', 'success');
         } else {
             throw new Error(result.error);
         }
     } catch (err) {
         addLog(`❌ Failed: ${err.message}`, 'error', 'weather');
-        alert('Failed to send notification');
+        showToast('Failed to send notification', 'error');
+    }
+}
+
+async function confirmStopServices() {
+    try {
+        closeModal('stop-services-modal');
+        showToast('Stopping services...', 'error');
+        
+        const res = await fetch('/scheduler/stop', { method: 'POST' });
+        const result = await res.json();
+        
+        if (result.success) {
+            addLog('🛑 Services stopped by user', 'error');
+            showToast('All services have been stopped', 'success');
+        }
+    } catch (err) {
+        showToast('Failed to stop services', 'error');
     }
 }
 
@@ -190,7 +363,9 @@ function setupEventListeners() {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const target = link.dataset.target;
-            if (target) switchSection(target);
+            if (target) {
+                switchSection(target);
+            }
         });
     });
 
@@ -211,10 +386,10 @@ function setupEventListeners() {
             if (result.success) {
                 handleLoginSuccess();
             } else {
-                alert(result.error || 'Login failed');
+                showToast(result.error || 'Login failed', 'error');
             }
         } catch (err) {
-            alert('Login error');
+            showToast('Login error', 'error');
         }
     });
 
@@ -222,8 +397,12 @@ function setupEventListeners() {
     window.logout = logout;
     window.getRecentOrders = getRecentOrders;
     window.sendWeatherNotification = sendWeatherNotification;
-
-    // Mobile menu toggle (if added later)
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+    window.confirmStopServices = confirmStopServices;
+    window.toggleProfileMenu = toggleProfileMenu;
+    window.showToast = showToast;
+    window.updateChartFilter = updateChartFilter;
 }
 
 function startPeriodicUpdates() {
