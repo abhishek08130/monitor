@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     checkAuth();
     setupEventListeners();
     startPeriodicUpdates();
-    
+
     // Add toast container
     const toastContainer = document.createElement('div');
     toastContainer.id = 'toast-container';
@@ -127,11 +127,11 @@ document.addEventListener('click', (e) => {
 function showToast(message, type = 'info') {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
-    
+
     let bg = 'rgba(30, 41, 59, 0.9)';
     let border = 'var(--primary)';
     let icon = 'fa-info-circle';
-    
+
     if (type === 'success') {
         border = 'var(--success)';
         icon = 'fa-check-circle';
@@ -139,7 +139,7 @@ function showToast(message, type = 'info') {
         border = 'var(--danger)';
         icon = 'fa-exclamation-circle';
     }
-    
+
     toast.style.cssText = `
         background: ${bg};
         backdrop-filter: blur(10px);
@@ -156,16 +156,16 @@ function showToast(message, type = 'info') {
         transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         font-family: 'Outfit', sans-serif;
     `;
-    
+
     toast.innerHTML = `<i class="fa-solid ${icon}" style="color: ${border}"></i> <span>${message}</span>`;
-    
+
     container.appendChild(toast);
-    
+
     // Trigger animation
     requestAnimationFrame(() => {
         toast.style.transform = 'translateX(0)';
     });
-    
+
     setTimeout(() => {
         toast.style.transform = 'translateX(120%)';
         setTimeout(() => toast.remove(), 300);
@@ -201,7 +201,7 @@ function initCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { 
+                plugins: {
                     legend: { display: false },
                     tooltip: {
                         backgroundColor: 'rgba(15, 23, 42, 0.9)',
@@ -242,11 +242,11 @@ function initCharts() {
                 responsive: true,
                 maintainAspectRatio: false,
                 cutout: '75%',
-                plugins: { 
-                    legend: { 
+                plugins: {
+                    legend: {
                         position: 'bottom',
                         labels: { padding: 20, usePointStyle: true }
-                    } 
+                    }
                 }
             }
         });
@@ -257,7 +257,7 @@ function updateChartFilter(days) {
     showToast(`Filtering data for last ${days} days...`);
     // Mock data update
     if (charts.bar) {
-        const newData = Array.from({length: 7}, () => Math.floor(Math.random() * 20) + 1);
+        const newData = Array.from({ length: 7 }, () => Math.floor(Math.random() * 20) + 1);
         charts.bar.data.datasets[0].data = newData;
         charts.bar.update();
     }
@@ -270,7 +270,7 @@ function addLog(message, type = 'info', section = 'main') {
 
     const entry = document.createElement('div');
     entry.className = `log-entry ${type === 'error' ? 'error' : type === 'success' ? 'success' : ''}`;
-    
+
     let icon = 'fa-info-circle';
     if (type === 'success') icon = 'fa-check-circle';
     if (type === 'error') icon = 'fa-triangle-exclamation';
@@ -295,19 +295,19 @@ function addLog(message, type = 'info', section = 'main') {
 async function getRecentOrders() {
     try {
         const btn = document.querySelector('button[onclick="getRecentOrders()"] i');
-        if(btn) btn.classList.add('fa-spin');
-        
+        if (btn) btn.classList.add('fa-spin');
+
         addLog('🔄 Fetching recent orders...');
         const res = await fetch('/recent-orders');
         const orders = await res.json();
-        
+
         setTimeout(() => {
-            if(btn) btn.classList.remove('fa-spin');
+            if (btn) btn.classList.remove('fa-spin');
             addLog(`✅ Found ${orders.length} recent orders`, 'success');
             document.getElementById('stat-total-orders').textContent = orders.length;
             showToast('Orders updated successfully', 'success');
         }, 800);
-        
+
     } catch (err) {
         addLog(`❌ Error: ${err.message}`, 'error');
         showToast('Failed to fetch orders', 'error');
@@ -319,7 +319,7 @@ async function sendWeatherNotification() {
     try {
         addLog(`🌤️ Sending weather notification via ${provider.toUpperCase()}...`, 'info', 'weather');
         showToast(`Generating weather alert with ${provider.toUpperCase()}...`);
-        
+
         const res = await fetch('/weather-notification', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -343,10 +343,10 @@ async function confirmStopServices() {
     try {
         closeModal('stop-services-modal');
         showToast('Stopping services...', 'error');
-        
+
         const res = await fetch('/scheduler/stop', { method: 'POST' });
         const result = await res.json();
-        
+
         if (result.success) {
             addLog('🛑 Services stopped by user', 'error');
             showToast('All services have been stopped', 'success');
@@ -405,10 +405,120 @@ function setupEventListeners() {
     window.updateChartFilter = updateChartFilter;
 }
 
-function startPeriodicUpdates() {
-    setInterval(() => {
-        if (isAuthenticated) {
-            // Update logic here
-        }
-    }, 30000);
+// Order Management
+let allOrders = [];
+
+async function loadOrders() {
+    try {
+        const tbody = document.getElementById('orders-table-body');
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                    <i class="fa-solid fa-spinner fa-spin" style="margin-right: 0.5rem;"></i> Loading orders...
+                </td>
+            </tr>
+        `;
+
+        // Fetch orders (using recent-orders for now, ideally should be a paginated endpoint)
+        const res = await fetch('/recent-orders');
+        const orders = await res.json();
+        allOrders = orders; // Store for client-side filtering
+
+        renderOrders(orders);
+
+    } catch (err) {
+        showToast('Failed to load orders', 'error');
+        document.getElementById('orders-table-body').innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 2rem; color: var(--danger);">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Failed to load data
+                </td>
+            </tr>
+        `;
+    }
 }
+
+function renderOrders(orders) {
+    const tbody = document.getElementById('orders-table-body');
+
+    if (orders.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                    No orders found
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = orders.map(order => {
+        const status = order.orderStatus || 'Pending';
+        let statusClass = 'status-pending';
+        let statusIcon = 'fa-clock';
+
+        if (status.toLowerCase().includes('completed') || status.toLowerCase().includes('delivered')) {
+            statusClass = 'status-completed';
+            statusIcon = 'fa-check-circle';
+        } else if (status.toLowerCase().includes('cancel')) {
+            statusClass = 'status-cancelled';
+            statusIcon = 'fa-times-circle';
+        }
+
+        const date = new Date(order.createdAt._seconds ? order.createdAt._seconds * 1000 : order.createdAt).toLocaleDateString();
+        const items = order.items ? order.items.map(i => `${i.quantity}x ${i.name}`).join(', ') : 'No items';
+
+        return `
+            <tr>
+                <td style="font-family: monospace; color: var(--primary-light);">#${order.orderId ? order.orderId.substring(0, 8) : 'N/A'}</td>
+                <td>
+                    <div style="font-weight: 500;">${order.customerName || 'Unknown'}</div>
+                    <div style="font-size: 0.8rem; opacity: 0.6;">${order.customerPhone || ''}</div>
+                </td>
+                <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${items}">
+                    ${items}
+                </td>
+                <td style="font-weight: 600;">₹${order.totalAmount}</td>
+                <td>
+                    <span class="status-badge ${statusClass}">
+                        <i class="fa-solid ${statusIcon}"></i> ${status}
+                    </span>
+                </td>
+                <td style="font-size: 0.9rem; opacity: 0.8;">${date}</td>
+                <td>
+                    <button class="btn btn-glass" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="viewOrderDetails('${order.id}')">
+                        <i class="fa-solid fa-eye"></i> View
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function filterOrders() {
+    const query = document.getElementById('order-search').value.toLowerCase();
+    const filtered = allOrders.filter(order =>
+        (order.customerName && order.customerName.toLowerCase().includes(query)) ||
+        (order.orderId && order.orderId.toLowerCase().includes(query)) ||
+        (order.customerPhone && order.customerPhone.includes(query))
+    );
+    renderOrders(filtered);
+}
+
+function viewOrderDetails(orderId) {
+    const order = allOrders.find(o => o.id === orderId);
+    if (!order) return;
+
+    // For now, just show a simple alert or log. 
+    // Ideally, populate a dedicated modal.
+    alert(`Order Details:\n\nCustomer: ${order.customerName}\nItems: ${order.items.map(i => i.name).join(', ')}\nTotal: ₹${order.totalAmount}`);
+}
+
+// Update switchSection to load orders when opening the section
+const originalSwitchSection = switchSection;
+switchSection = function (sectionId) {
+    originalSwitchSection(sectionId);
+    if (sectionId === 'orders-section') {
+        loadOrders();
+    }
+};
