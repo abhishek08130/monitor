@@ -26,7 +26,7 @@ app.use('/asset', express.static('asset'));
 // Auth middleware (protect all except login/logout/assets)
 app.use((req, res, next) => {
   const openPaths = [
-    '/login', '/logout', '/asset', '/favicon.ico', '/public', '/api-keys', '/set-multi-api-keys', '/scheduler/trigger', '/weather-notification'
+    '/login', '/logout', '/asset', '/favicon.ico', '/public', '/api-keys', '/set-multi-api-keys', '/scheduler/trigger', '/weather-notification', '/test-notification'
   ];
   if (
     openPaths.some(p => req.path.startsWith(p)) ||
@@ -115,22 +115,20 @@ app.post('/test-notification', async (req, res) => {
       createdAt: new Date()
     };
 
-    // Send customer notification only
+    // Send customer notification
+    console.log('📱 Sending customer notification...');
     const customerResult = await whatsappService.sendCustomerTemplateMessage(testOrder);
 
-    if (customerResult.success === false) {
-      res.json({
-        success: false,
-        error: customerResult.message,
-        customerResult
-      });
-    } else {
-      res.json({
-        success: true,
-        message: 'Test notification sent successfully to customer',
-        customerResult
-      });
-    }
+    // Send admin notification
+    console.log('📱 Sending admin notification...');
+    const adminResult = await whatsappService.sendTemplateMessage(testOrder);
+
+    res.json({
+      success: true,
+      message: 'Test notifications sent',
+      customerResult,
+      adminResult
+    });
   } catch (error) {
     console.error('Test notification error:', error);
     res.status(500).json({ success: false, error: error.message });

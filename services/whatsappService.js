@@ -13,19 +13,127 @@ class WhatsAppService {
     try {
       // Check if WhatsApp credentials are configured
       if (!this.accessToken || !this.phoneNumberId || !this.adminNumber) {
-        console.log('⚠️ WhatsApp credentials not configured. Message not sent.');
+        console.log('⚠️ WhatsApp credentials not configured. Admin message not sent.');
         console.log('📝 Please configure WhatsApp Business API credentials in .env file.');
         return { success: false, message: 'WhatsApp not configured' };
       }
 
-      // Create a simple text message instead of template
+      // Format order time
+      const orderTime = new Date().toLocaleString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+
+      // Format items for template
+      let itemsList = '';
+      if (orderData.items && orderData.items.length > 0) {
+        itemsList = orderData.items.map(item =>
+          `${item.name || item.itemName || 'Item'} x${item.quantity || 1}`
+        ).join(', ');
+
+        // Truncate if too long (WhatsApp has character limits for template variables)
+        if (itemsList.length > 150) {
+          itemsList = itemsList.substring(0, 147) + '...';
+        }
+      } else {
+        itemsList = 'Order items';
+      }
+
+      console.log('📱 Sending adminnotify template message to admin:', this.adminNumber);
+
+      // Prepare template message data for adminnotify template
+      const templateMessageData = {
+        messaging_product: 'whatsapp',
+        to: this.adminNumber,
+        type: 'template',
+        template: {
+          name: 'adminnotify',
+          language: {
+            code: 'en'
+          },
+          components: [
+            {
+              type: 'body',
+              parameters: [
+                {
+                  type: 'text',
+                  text: orderData.orderId || orderData.id || 'N/A'
+                },
+                {
+                  type: 'text',
+                  text: orderData.customerName || 'Customer'
+                },
+                {
+                  type: 'text',
+                  text: orderData.customerPhone || 'N/A'
+                },
+                {
+                  type: 'text',
+                  text: orderTime
+                },
+                {
+                  type: 'text',
+                  text: itemsList
+                },
+                {
+                  type: 'text',
+                  text: orderData.totalAmount ? `₹${orderData.totalAmount}` : 'N/A'
+                }
+              ]
+            }
+          ]
+        }
+      };
+
+      try {
+        // Send template message
+        const response = await axios.post(
+          `${this.baseURL}/${this.phoneNumberId}/messages`,
+          templateMessageData,
+          {
+            headers: {
+              'Authorization': `Bearer ${this.accessToken}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        console.log('✅ Admin template message sent successfully:', response.data);
+        return response.data;
+      } catch (templateError) {
+        // If template message fails, fall back to text message
+        console.error('❌ Error sending admin template message:', templateError.response?.data || templateError.message);
+        console.log('⚠️ Falling back to text message for admin...');
+
+        // Use the fallback text message method
+        return await this.sendAdminTextMessage(orderData);
+      }
+    } catch (error) {
+      console.error('❌ Error in admin notification process:', error.response?.data || error.message);
+      throw error;
+    }
+  }
+
+  async sendAdminTextMessage(orderData) {
+    try {
+      // Check if WhatsApp credentials are configured
+      if (!this.accessToken || !this.phoneNumberId || !this.adminNumber) {
+        console.log('⚠️ WhatsApp credentials not configured. Message not sent.');
+        return { success: false, message: 'WhatsApp not configured' };
+      }
+
+      // Create a simple text message as fallback
       const timestamp = new Date().toLocaleString('en-IN', {
         timeZone: 'Asia/Kolkata'
       });
 
       let itemsText = '';
       if (orderData.items && orderData.items.length > 0) {
-        itemsText = orderData.items.slice(0, 3).map(item => 
+        itemsText = orderData.items.slice(0, 3).map(item =>
           `• ${item.name || item.itemName || 'Item'} x${item.quantity || 1}`
         ).join('\n');
         if (orderData.items.length > 3) {
@@ -47,12 +155,9 @@ ${itemsText ? `\n*Order Items:*\n${itemsText}` : ''}
 
 Please check your Pivokart dashboard for more details.`;
 
-      // Override admin number for test notifications
-      const targetNumber = orderData.customerPhone === '+919758911480' ? '+919758911480' : this.adminNumber;
-
       const messageData = {
         messaging_product: 'whatsapp',
-        to: targetNumber,
+        to: this.adminNumber,
         type: 'text',
         text: {
           body: messageText
@@ -70,11 +175,11 @@ Please check your Pivokart dashboard for more details.`;
         }
       );
 
-      console.log('✅ Admin WhatsApp message sent successfully:', response.data);
+      console.log('✅ Admin fallback text message sent successfully:', response.data);
       return response.data;
     } catch (error) {
-      console.error('❌ Error sending WhatsApp message:', error.response?.data || error.message);
-      
+      console.error('❌ Error sending admin fallback text message:', error.response?.data || error.message);
+
       // Handle specific error cases
       if (error.response?.status === 401) {
         console.error('🔑 WhatsApp Access Token is invalid or expired!');
@@ -85,7 +190,7 @@ Please check your Pivokart dashboard for more details.`;
         console.error('   4. Update the WHATSAPP_ACCESS_TOKEN in your .env file');
         return { success: false, message: 'Access token expired. Please get a new token from Meta Developer Console.' };
       }
-      
+
       throw error;
     }
   }
@@ -111,7 +216,7 @@ Please check your Pivokart dashboard for more details.`;
       // Extract customer name
       const customerName = orderData.customerName || (orderData.author && orderData.author.name) || 'Customer';
       const firstName = customerName.split(' ')[0]; // Get first name only
-      
+
       // Format order time
       const orderTime = new Date().toLocaleString('en-IN', {
         timeZone: 'Asia/Kolkata',
@@ -125,10 +230,10 @@ Please check your Pivokart dashboard for more details.`;
       // Format items for template
       let itemsList = '';
       if (orderData.items && orderData.items.length > 0) {
-        itemsList = orderData.items.map(item => 
+        itemsList = orderData.items.map(item =>
           `${item.name || item.itemName || 'Item'} x${item.quantity || 1}`
         ).join(', ');
-        
+
         // Truncate if too long (WhatsApp has character limits for template variables)
         if (itemsList.length > 150) {
           itemsList = itemsList.substring(0, 147) + '...';
@@ -194,7 +299,7 @@ Please check your Pivokart dashboard for more details.`;
         // If template message fails, fall back to text message
         console.error('❌ Error sending template message:', templateError.response?.data || templateError.message);
         console.log('⚠️ Falling back to text message...');
-        
+
         // Use the fallback text message method
         return await this.sendCustomerTextMessage(orderData);
       }
@@ -233,7 +338,7 @@ Please check your Pivokart dashboard for more details.`;
 
       let itemsText = '';
       if (orderData.items && orderData.items.length > 0) {
-        itemsText = orderData.items.slice(0, 3).map(item => 
+        itemsText = orderData.items.slice(0, 3).map(item =>
           `• ${item.name || item.itemName || 'Item'} x${item.quantity || 1}`
         ).join('\n');
         if (orderData.items.length > 3) {
