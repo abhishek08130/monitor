@@ -43,15 +43,15 @@ class WhatsAppService {
         itemsList = 'Order items';
       }
 
-      console.log('📱 Sending adminnotify template message to admin:', this.adminNumber);
+      console.log('📱 Sending admin notification using "order" template to:', this.adminNumber);
 
-      // Prepare template message data for adminnotify template
+      // Prepare template message data for admin notification (using 'order' template)
       const templateMessageData = {
         messaging_product: 'whatsapp',
         to: this.adminNumber,
         type: 'template',
         template: {
-          name: 'adminnotify',
+          name: 'order',
           language: {
             code: 'en'
           },
@@ -61,15 +61,11 @@ class WhatsAppService {
               parameters: [
                 {
                   type: 'text',
+                  text: 'Admin' // Using 'Admin' as the name
+                },
+                {
+                  type: 'text',
                   text: orderData.orderId || orderData.id || 'N/A'
-                },
-                {
-                  type: 'text',
-                  text: orderData.customerName || 'Customer'
-                },
-                {
-                  type: 'text',
-                  text: orderData.customerPhone || 'N/A'
                 },
                 {
                   type: 'text',
@@ -78,10 +74,6 @@ class WhatsAppService {
                 {
                   type: 'text',
                   text: itemsList
-                },
-                {
-                  type: 'text',
-                  text: orderData.totalAmount ? `₹${orderData.totalAmount}` : 'N/A'
                 }
               ]
             }
