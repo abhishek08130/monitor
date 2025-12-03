@@ -1,21 +1,33 @@
 const express = require('express');
 const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 const { initializeFirebase } = require('./config/firebase');
 const FirestoreMonitor = require('./services/firestoreMonitor');
 const WhatsAppService = require('./services/whatsappService');
 const weatherService = require('./services/weatherService');
 const WeatherScheduler = require('./services/weatherScheduler');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Session middleware
+// Session middleware with FileStore for production
 app.use(session({
+  store: new FileStore({
+    path: path.join(__dirname, 'sessions'),
+    ttl: 86400, // 24 hours in seconds
+    retries: 0,
+    logFn: () => {} // Suppress file store logs
+  }),
   secret: process.env.SESSION_SECRET || 'pivokart_secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 24 * 60 * 60 * 1000 }
+  cookie: { 
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+    httpOnly: true // Prevent XSS attacks
+  }
 }));
 
 // Middleware

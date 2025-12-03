@@ -69,4 +69,7 @@ Thumbs.db
 
 # Temporary files
 tmp/
-temp/ 
+temp/
+
+# Session files
+sessions/ 
