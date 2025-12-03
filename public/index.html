@@ -16,27 +16,9 @@
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-  <!DOCTYPE html>
-  <html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pivokart Monitor | Admin Dashboard</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
-      rel="stylesheet">
-
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="css/style.css">
-  </head>
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
 
 <body>
 
@@ -138,8 +120,10 @@
         </a>
         <a href="#" class="nav-item" data-target="firebase-services-section">
           <i class="fa-solid fa-fire"></i>
-  </div>
-  </aside>
+          <span>Firebase Services</span>
+        </a>
+      </nav>
+    </aside>
 
   <!-- Main Content -->
   <main class="main">
@@ -287,8 +271,53 @@
       </div>
 
       <div class="logs-container">
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="js/dashboard.js"></script>
+        <div class="chart-header">
+          <h3 class="chart-title">WhatsApp Logs</h3>
+        </div>
+        <div class="logs-scroll" id="whatsapp-logs">
+          <!-- WhatsApp logs will appear here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Firebase Services Section -->
+    <div id="firebase-services-section" class="content" style="display: none;">
+      <div class="section-header">
+        <h1 class="section-title">Firebase Services</h1>
+        <p class="section-subtitle">Monitor Firestore and notification services</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="color: var(--accent); background: rgba(6, 182, 212, 0.1);">
+            <i class="fa-solid fa-database"></i>
+          </div>
+          <div class="stat-value">Active</div>
+          <div class="stat-label">Firestore Listener</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="color: var(--warning); background: rgba(245, 158, 11, 0.1);">
+            <i class="fa-solid fa-cloud-sun"></i>
+          </div>
+          <div class="stat-value">Running</div>
+          <div class="stat-label">Weather Scheduler</div>
+        </div>
+      </div>
+
+      <div class="logs-container">
+        <div class="chart-header">
+          <h3 class="chart-title">Service Logs</h3>
+        </div>
+        <div class="logs-scroll" id="weather-logs">
+          <!-- Service logs will appear here -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/dashboard.js"></script>
 </body>
 
 </html>
