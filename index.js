@@ -10,7 +10,34 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+
+// PORT Configuration - Multiple ways to set port:
+// 1. Command line: node index.js --port 8080 or node index.js -p 8080
+// 2. Environment variable: PORT=8080 npm start
+// 3. .env file: PORT=8080
+// 4. Default: 3000 (if nothing is specified)
+
+function getPortFromArgs() {
+  const args = process.argv.slice(2);
+  for (let i = 0; i < args.length; i++) {
+    if ((args[i] === '--port' || args[i] === '-p') && args[i + 1]) {
+      return args[i + 1];
+    }
+    // Support --port=8080 format
+    if (args[i].startsWith('--port=')) {
+      return args[i].split('=')[1];
+    }
+  }
+  return null;
+}
+
+const PORT = getPortFromArgs() || process.env.PORT || process.env.SERVER_PORT || '3000';
+const SERVER_PORT = parseInt(PORT, 10);
+
+if (isNaN(SERVER_PORT) || SERVER_PORT < 1 || SERVER_PORT > 65535) {
+  console.error('❌ Error: Invalid PORT value. Must be between 1 and 65535');
+  process.exit(1);
+}
 
 // Session middleware with FileStore for production
 app.use(session({
@@ -487,8 +514,9 @@ app.post('/scheduler/reset', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`🌐 Server running on http://localhost:${PORT}`);
+app.listen(SERVER_PORT, () => {
+  console.log(`🌐 Server running on http://localhost:${SERVER_PORT}`);
+  console.log(`   💡 Tip: Set port via --port flag, PORT env variable, or .env file`);
   initializeApp();
 });
 

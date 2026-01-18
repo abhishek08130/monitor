@@ -15,7 +15,7 @@ A Node.js application that monitors Firestore database for new orders and automa
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
+- Node.js v16.x (required)
 - Firebase project with Firestore enabled
 - WhatsApp Business API access
 - Service account key from Firebase
