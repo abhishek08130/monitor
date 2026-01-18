@@ -10,28 +10,58 @@ class WeatherService {
   }
 
   async loadApiKeys() {
-    try {
-      const data = await fs.readFile('api_keys.csv', 'utf8');
-      const lines = data.trim().split('\n');
+    // Priority 1: Load from environment variables (.env file)
+    if (process.env.OPENWEATHER_API_KEY) {
+      this.apiKeys['openweather'] = process.env.OPENWEATHER_API_KEY;
+    }
+    if (process.env.GEMINI_API_KEY) {
+      this.apiKeys['gemini'] = process.env.GEMINI_API_KEY;
+    }
+    if (process.env.OPENAI_API_KEY) {
+      this.apiKeys['openai'] = process.env.OPENAI_API_KEY;
+    }
 
-      lines.forEach(line => {
-        const [service, key] = line.split(',');
-        if (service && key) {
-          this.apiKeys[service.trim()] = key.trim();
-        }
-      });
+    // Priority 2: Fallback to CSV file (for backward compatibility)
+    if (!this.apiKeys['openweather'] || !this.apiKeys['gemini']) {
+      try {
+        const data = await fs.readFile('api_keys.csv', 'utf8');
+        const lines = data.trim().split('\n');
 
-      console.log('✅ API keys loaded successfully');
-    } catch (error) {
-      console.log('⚠️ No API keys file found or error loading keys');
+        lines.forEach(line => {
+          const [service, key] = line.split(',');
+          if (service && key) {
+            const serviceName = service.trim();
+            // Only use CSV if env variable doesn't exist
+            if (!this.apiKeys[serviceName]) {
+              this.apiKeys[serviceName] = key.trim();
+            }
+          }
+        });
+      } catch (error) {
+        // CSV file not found, that's okay if env vars are set
+      }
+    }
+
+    const loadedKeys = Object.keys(this.apiKeys).filter(key => this.apiKeys[key]);
+    if (loadedKeys.length > 0) {
+      console.log(`✅ API keys loaded: ${loadedKeys.join(', ')}`);
+      if (process.env.OPENWEATHER_API_KEY || process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY) {
+        console.log('   📝 Keys loaded from .env file');
+      }
+    } else {
+      console.log('⚠️ No API keys found in .env or api_keys.csv');
+      console.log('   💡 Add API keys to .env file: OPENWEATHER_API_KEY, GEMINI_API_KEY, OPENAI_API_KEY');
     }
   }
 
   async saveApiKeys() {
+    // Note: API keys should be set in .env file for security
+    // This method saves to CSV as backup/fallback only
     try {
       const lines = Object.entries(this.apiKeys).map(([service, key]) => `${service},${key}`);
       await fs.writeFile('api_keys.csv', lines.join('\n'));
-      console.log('✅ API keys saved successfully');
+      console.log('✅ API keys saved to CSV (backup)');
+      console.log('   ⚠️  For production, update .env file with API keys');
     } catch (error) {
       console.error('❌ Error saving API keys:', error);
     }
@@ -40,7 +70,8 @@ class WeatherService {
   async setApiKey(service, apiKey) {
     this.apiKeys[service] = apiKey;
     await this.saveApiKeys();
-    console.log(`✅ ${service} API key updated`);
+    console.log(`✅ ${service} API key updated in memory`);
+    console.log(`   ⚠️  For persistence, add ${service.toUpperCase()}_API_KEY=${apiKey} to .env file`);
   }
 
   async setMultiApiKeys(keys) {
@@ -54,7 +85,11 @@ class WeatherService {
       this.apiKeys['openai'] = keys.openai;
     }
     await this.saveApiKeys();
-    console.log('✅ Multiple API keys updated');
+    console.log('✅ Multiple API keys updated in memory');
+    console.log('   ⚠️  For persistence, add these keys to .env file:');
+    if (keys.openweather) console.log(`      OPENWEATHER_API_KEY=${keys.openweather}`);
+    if (keys.gemini) console.log(`      GEMINI_API_KEY=${keys.gemini}`);
+    if (keys.openai) console.log(`      OPENAI_API_KEY=${keys.openai}`);
   }
 
   getApiKey(service) {
